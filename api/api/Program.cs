@@ -52,6 +52,19 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+try
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+    app.Logger.LogInformation("Database migrations applied successfully.");
+}
+catch (Exception ex)
+{
+    app.Logger.LogError(ex, "Failed to apply database migrations during startup.");
+    throw;
+}
+
 app.UseCors(specificOrigins);
 app.UseHttpsRedirection();
 app.MapControllers();
