@@ -1,12 +1,12 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy Node.js app to Azure Web App - craigportfolioui
 
 on:
   push:
     branches:
       - main
+    paths:
+      - "todo/**"
+      - ".github/workflows/deploy_todo.yml"
   workflow_dispatch:
 
 jobs:
@@ -16,18 +16,30 @@ jobs:
       contents: read #This is required for actions/checkout
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js version
-        uses: actions/setup-node@v3
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: '24.x'
+          version: 9
 
-      - name: npm install, build, and test
-        run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: todo/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: todo
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Next.js app
+        working-directory: todo
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -47,7 +59,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -55,11 +67,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3FBE68C0797B4752B6EAD4F2BD380895 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1F855EE745D74C5A87DB16B130A93073 }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: "Deploy to Azure Web App"
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'craigportfolioui'
-          slot-name: 'Production'
+          app-name: "craigportfolioui"
+          slot-name: "Production"
           package: .
-          

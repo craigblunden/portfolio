@@ -19,7 +19,10 @@ builder.Services.AddCors(options =>
         name: specificOrigins,
         policy =>
         {
-            var origins = new List<string> { "https://web-gfbf3do6vsdse.azurewebsites.net" };
+            var origins = new List<string>
+            {
+                "https://craigportfolioui-edfzftfbf9gkfcc0.australiaeast-01.azurewebsites.net",
+            };
 
             if (builder.Environment.IsDevelopment())
             {
