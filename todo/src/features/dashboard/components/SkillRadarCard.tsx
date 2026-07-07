@@ -41,7 +41,7 @@ const skillRadarData = [
   { skill: "Testing", current: 6, target: 8 },
 ];
 
-export function SkillRadarCard({ apiUnavailable }: SkillRadarCardProps) {
+export function SkillRadarCard({ apiUnavailable, red }: SkillRadarCardProps) {
   return (
     <Card
       size="sm"
