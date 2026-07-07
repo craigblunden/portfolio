@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
         {
             var origins = new List<string>
             {
-                "https://craigportfolio-djdffmajaccvejds.australiasoutheast-01.azurewebsites.net",
+                "https://craigportfolioui-edfzftfbf9gkfcc0.australiasoutheast-01.azurewebsites.net",
             };
 
             if (builder.Environment.IsDevelopment())
