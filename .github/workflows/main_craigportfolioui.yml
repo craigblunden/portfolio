@@ -48,7 +48,13 @@ jobs:
       - name: Create deployment package
         run: |
           cd todo
-          zip -r ../todo-package.zip .
+          mkdir -p .next/standalone/.next
+          cp -R .next/static .next/standalone/.next/static
+          if [ -d public ]; then
+            cp -R public .next/standalone/public
+          fi
+          cd .next/standalone
+          zip -r ../../../todo-package.zip .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -83,3 +89,4 @@ jobs:
         with:
           app-name: "craigportfolioui"
           package: ./todo-package.zip
+          startup-command: "node server.js"
