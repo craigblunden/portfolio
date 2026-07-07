@@ -9,6 +9,10 @@ on:
       - ".github/workflows/main_craigportfolioui.yml"
   workflow_dispatch:
 
+concurrency:
+  group: deploy-craigportfolioui
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -73,5 +77,4 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: "craigportfolioui"
-          slot-name: "Production"
           package: ./todo
