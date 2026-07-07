@@ -53,6 +53,15 @@ jobs:
           if [ -d public ]; then
             cp -R public .next/standalone/public
           fi
+          cat > .next/standalone/package.json <<'EOF'
+          {
+            "name": "craigportfolioui-runtime",
+            "private": true,
+            "scripts": {
+              "start": "node server.js"
+            }
+          }
+          EOF
           cd .next/standalone
           zip -r ../../../todo-package.zip .
 
