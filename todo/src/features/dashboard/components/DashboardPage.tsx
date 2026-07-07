@@ -112,7 +112,7 @@ export async function DashboardPage() {
                 }}
               >
                 <span className="absolute bottom-3 left-3 rounded-md border border-[#232b36] bg-[#0a0d12]/80 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-[#8b97a7]">
-                  self portrait
+                  self portrait...
                 </span>
               </div>
 
