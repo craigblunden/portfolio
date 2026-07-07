@@ -45,11 +45,16 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
+      - name: Create deployment package
+        run: |
+          cd todo
+          zip -r ../todo-package.zip .
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: ./todo
+          path: ./todo-package.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -63,7 +68,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
-          path: ./todo
+          path: .
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -77,4 +82,4 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: "craigportfolioui"
-          package: ./todo
+          package: ./todo-package.zip
