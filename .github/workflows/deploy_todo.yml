@@ -49,13 +49,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B351F5B471394C388BBF0DB891D9754F }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A96CD8C9D6824B33AE55337D047542DC }}
 
-      - name: Configure Azure Web App settings
-        run: |
-          az webapp config appsettings set \
-            --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
-            --name "${{ secrets.AZURE_WEBAPP_NAME }}" \
-            --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_API_URL }}"
-
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
