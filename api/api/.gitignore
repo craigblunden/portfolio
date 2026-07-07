@@ -1,0 +1,31 @@
+# SQLite Database files
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+*.*~
+
+# .NET Build and Cache files
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Bb]uild/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Ignore local debug profiles and local secrets
+[Pp]roperties/[Ll]aunch[Ss]ettings.json
+appsettings.Development.json
+
+# Always ignore .NET user secrets folder (if stored locally in project root)
+.microsoft.dotnet.secretmanager/
+secrets.json

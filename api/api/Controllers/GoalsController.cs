@@ -1,0 +1,21 @@
+// Controllers/TodosController.cs
+using Microsoft.AspNetCore.Mvc;
+
+[ApiController]
+[Route("api/[controller]")] // resolves to /api/Todos
+public class GoalsController : ControllerBase
+{
+    private readonly IGoalService _goalService;
+
+    public GoalsController(IGoalService goalService)
+    {
+        _goalService = goalService;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll(int offset = 0, int limit = 5)
+    {
+        Console.WriteLine($"GetAll called with offset={offset} and limit={limit}");
+        return Ok(await _goalService.GetAllAsync(offset, limit));
+    }
+}
