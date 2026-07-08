@@ -51,7 +51,7 @@ http://localhost:3000/api/auth/callback
 - Deploys the published artifact to Azure Web App from GitHub Actions.
 - The workflow currently does not inject app-specific runtime environment variables.
 - Store API runtime settings in the Azure Portal under the API Web App:
-  `craigportfolio` > Settings > Environment variables > App settings.
+  Settings > Environment variables > App settings.
   Add these app settings:
   - `Auth__Google__ClientId`: Google OAuth web client ID.
   - `Auth__Google__ClientSecret`: Google OAuth web client secret.
