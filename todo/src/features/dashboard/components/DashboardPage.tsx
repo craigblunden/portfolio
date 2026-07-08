@@ -1,33 +1,22 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Kbd } from "@/components/ui/kbd";
 import Image from "next/image";
 import {
-  blogPosts,
-  commits,
   completedTasks,
   fallbackTodos,
   goals as goalFixtures,
-  habits,
-  projects,
 } from "@/features/dashboard/data/dashboardData";
 import { getTodos, type PagedTodosResponse } from "@/features/todos/api/todos";
 import { QueryClient } from "@tanstack/react-query";
 import {
-  Bug,
   Check,
   Clock,
-  Code2,
   Command,
-  Filter,
-  Flame,
-  GitCommit,
-  Hash,
   MoreHorizontal,
   Plus,
-  Rocket,
   Search,
   Target,
 } from "lucide-react";
@@ -36,9 +25,17 @@ import { GoalDrawer } from "./GoalDrawer";
 import { SkillRadarCard } from "@/features/dashboard/components/SkillRadarCard";
 import { TimelineProgress } from "./TimelineProgress";
 import { getGoals, PagedGoalsResponse } from "@/features/goals/api/goals";
+import { AdminSessionButton } from "@/features/auth/components/AdminSessionButton";
+import { getAdminSession } from "@/features/auth/api/session";
+// import { AdminSignIn } from "@/features/auth/components/AdminSignIn";
 
-export async function DashboardPage() {
+type DashboardPageProps = {
+  authDenied?: boolean;
+};
+
+export async function DashboardPage({ authDenied = false }: DashboardPageProps) {
   const queryClient = new QueryClient();
+  const { isAuthenticated, isAdmin } = await getAdminSession();
 
   let apiUnavailable = false;
 
@@ -76,33 +73,51 @@ export async function DashboardPage() {
     ? [...goalsData.payload, ...goalFixtures]
     : goalFixtures;
 
-  const boardColumns = [
-    { label: "next_actions", items: todos.slice(0, 2), color: "bg-[#5d6878]" },
-    { label: "in_motion", items: todos.slice(2, 4), color: "bg-[#f0805c]" },
-    { label: "recently_done", items: todos.slice(4, 5), color: "bg-[#4ec98a]" },
-  ];
+  // const boardColumns = [
+  //   { label: "next_actions", items: todos.slice(0, 2), color: "bg-[#5d6878]" },
+  //   { label: "in_motion", items: todos.slice(2, 4), color: "bg-[#f0805c]" },
+  //   { label: "recently_done", items: todos.slice(4, 5), color: "bg-[#4ec98a]" },
+  // ];
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#0a0d12] font-mono text-[#e9eef5]">
       <section className="flex min-w-0 flex-col">
-        <header className="flex flex-col gap-3 border-b border-[#232b36] bg-[#0a0d12] px-4 py-3 sm:flex-row sm:items-center sm:px-5">
-          <div className="flex w-full flex-1 items-center gap-2 rounded-lg border border-[#232b36] bg-[#0e1218] px-3 py-2 shadow-[0_0_0_0_rgba(240,128,92,0.14)] focus-within:border-[#f0805c]/35 focus-within:shadow-[0_0_0_3px_rgba(240,128,92,0.14)] sm:max-w-xl">
-            <Search className="size-4 text-[#5d6878]" />
-            <Input
-              placeholder="search tasks, or run a command..."
-              className="h-auto border-0 bg-transparent p-0 font-mono text-[13px] text-[#e9eef5] shadow-none placeholder:text-[#5d6878] focus-visible:ring-0"
-            />
-            <Kbd className="h-6 border border-[#232b36] bg-[#151a22] font-mono text-[#8b97a7]">
-              <Command className="size-3" />K
-            </Kbd>
-          </div>
-          <Button className="w-full bg-[#f0805c] font-mono text-[#1a0f0a] hover:bg-[#f59377] sm:w-auto">
-            <Plus className="size-4" />
-            log progress
-          </Button>
-        </header>
+        {isAdmin || !isAuthenticated ? (
+          <header className="flex flex-col gap-3 border-b border-[#232b36] bg-[#0a0d12] px-4 py-3 sm:flex-row sm:items-center sm:px-5">
+            {isAdmin ? (
+              <>
+                <div className="flex w-full flex-1 items-center gap-2 rounded-lg border border-[#232b36] bg-[#0e1218] px-3 py-2 shadow-[0_0_0_0_rgba(240,128,92,0.14)] focus-within:border-[#f0805c]/35 focus-within:shadow-[0_0_0_3px_rgba(240,128,92,0.14)] sm:max-w-xl">
+                  <Search className="size-4 text-[#5d6878]" />
+                  <Input
+                    placeholder="search tasks, or run a command..."
+                    className="h-auto border-0 bg-transparent p-0 font-mono text-[13px] text-[#e9eef5] shadow-none placeholder:text-[#5d6878] focus-visible:ring-0"
+                  />
+                  <Kbd className="h-6 border border-[#232b36] bg-[#151a22] font-mono text-[#8b97a7]">
+                    <Command className="size-3" />K
+                  </Kbd>
+                </div>
+                <Button className="w-full bg-[#f0805c] font-mono text-[#1a0f0a] hover:bg-[#f59377] sm:w-auto">
+                  <Plus className="size-4" />
+                  log progress
+                </Button>
+                <AdminSessionButton />
+              </>
+            ) : (
+              // <div className="flex w-full justify-end">
+              //   <AdminSignIn />
+              // </div>
+              null
+            )}
+          </header>
+        ) : null}
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+          {authDenied ? (
+            <div className="mb-5 rounded-xl border border-[#f0805c]/35 bg-[#f0805c]/10 px-4 py-3 text-sm text-[#f5b7a3]">
+              Sign-in was rejected. Please contact this guy 👇.
+            </div>
+          ) : null}
+
           <div className="mb-7 grid gap-4 lg:grid-cols-2">
             <div className="flex min-h-90 flex-col">
               <div
@@ -190,7 +205,7 @@ export async function DashboardPage() {
             </div>
           </DashboardSection>
 
-          <DashboardSection title="momentum_habits" count={habits.length}>
+          {/* <DashboardSection title="momentum_habits" count={habits.length}>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
               {habits.map((habit) => (
                 <Card
@@ -239,7 +254,7 @@ export async function DashboardPage() {
                 </Card>
               ))}
             </div>
-          </DashboardSection>
+          </DashboardSection> */}
 
           <DashboardSection
             title="recently_completed"
@@ -282,7 +297,7 @@ export async function DashboardPage() {
             </div>
           </DashboardSection>
 
-          <div className="grid gap-7 xl:grid-cols-2">
+          {/* <div className="grid gap-7 xl:grid-cols-2">
             <DashboardSection title="recent_writing" count={blogPosts.length}>
               <div className="space-y-3">
                 {blogPosts.map((post) => (
@@ -338,9 +353,9 @@ export async function DashboardPage() {
                 ))}
               </div>
             </DashboardSection>
-          </div>
+          </div> */}
 
-          <DashboardSection title="side_projects" count={projects.length}>
+          {/* <DashboardSection title="side_projects" count={projects.length}>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {projects.map((project) => (
                 <Card
@@ -438,7 +453,7 @@ export async function DashboardPage() {
                 </div>
               ))}
             </div>
-          </DashboardSection>
+          </DashboardSection> */}
         </div>
       </section>
     </div>

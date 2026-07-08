@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -9,40 +8,29 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  BookOpen,
-  Calendar,
-  Code2,
-  GitBranch,
-  Hash,
-  Home,
-  Layers3,
-  Menu,
-  Plus,
-  Rocket,
-  Zap,
-} from "lucide-react";
+import { Code2, Home, Layers3, Menu, Rocket, Zap } from "lucide-react";
 import Link from "next/link";
 
-const navItems = [
+type NavItem = {
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  shortcut?: string;
+  badge?: string;
+  active?: boolean;
+};
+
+const navItems: NavItem[] = [
   { label: "home", icon: Home, shortcut: "1", active: true },
   { label: "goals", icon: Zap, shortcut: "2" },
-  { label: "writing", icon: BookOpen, shortcut: "3" },
-  { label: "timeline", icon: Calendar, badge: "6m" },
+  // { label: "writing", icon: BookOpen, shortcut: "3" },
+  // { label: "timeline", icon: Calendar, badge: "6m" },
 ];
 
 const listItems = [
   { label: "resume", icon: Layers3, count: 4 },
   { label: "projects", icon: Rocket, count: 2 },
-  { label: "commits", icon: GitBranch, count: 3 },
+  // { label: "commits", icon: GitBranch, count: 3 },
   { label: "job-search", icon: Code2, count: 5 },
-];
-
-const tags = [
-  { label: "career", className: "bg-[#5aa9ff]/15 text-[#5aa9ff]" },
-  { label: "blog", className: "bg-[#f0664f]/15 text-[#f0664f]" },
-  { label: "projects", className: "bg-[#4ec98a]/15 text-[#4ec98a]" },
-  { label: "open-to-work", className: "bg-[#f0805c]/15 text-[#f0805c]" },
 ];
 
 export function AppSidebar() {
@@ -132,24 +120,7 @@ function SidebarContent({ className }: { className?: string }) {
             <span className="text-[11px] text-[#404a59]">{count}</span>
           </Link>
         ))}
-        <button className="flex w-full items-center gap-2 rounded-lg px-2 py-2.5 text-left text-[13px] text-[#5d6878] transition hover:bg-[#151a22] hover:text-[#8b97a7]">
-          <Plus className="size-4" />
-          <span>new update</span>
-        </button>
       </NavGroup>
-
-      <SectionLabel>tags</SectionLabel>
-      <div className="flex flex-wrap gap-1.5 px-2">
-        {tags.map((tag) => (
-          <Badge
-            key={tag.label}
-            className={`rounded-md border-0 font-mono text-[11px] ${tag.className}`}
-          >
-            <Hash className="size-2.5 opacity-60" />
-            {tag.label}
-          </Badge>
-        ))}
-      </div>
     </div>
   );
 }
