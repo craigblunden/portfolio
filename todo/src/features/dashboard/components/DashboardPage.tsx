@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Kbd } from "@/components/ui/kbd";
+import Image from "next/image";
 import {
   blogPosts,
   commits,
@@ -102,7 +103,7 @@ export async function DashboardPage() {
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">
-          <div className="mb-6 grid gap-4 lg:grid-cols-[1fr_2fr]">
+          <div className="mb-7 grid gap-4 lg:grid-cols-2">
             <div className="flex min-h-90 flex-col">
               <div
                 className="relative min-h-50 flex-1 overflow-hidden rounded-xl border border-[#232b36] bg-[#0e1218] bg-cover bg-center bg-no-repeat"
@@ -111,6 +112,15 @@ export async function DashboardPage() {
                     "linear-gradient(180deg, rgba(10,13,18,0.1) 0%, rgba(10,13,18,0.88) 92%), url('/self-portrait.jpg')",
                 }}
               >
+                <Image
+                  className="absolute inset-0 h-full w-full object-cover"
+                  src="/imgs/craig.png"
+                  alt="Self Portrait"
+                  width={300}
+                  height={200}
+                  loading="eager"
+                />
+
                 <span className="absolute bottom-3 left-3 rounded-md border border-[#232b36] bg-[#0a0d12]/80 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-[#8b97a7]">
                   self portrait...
                 </span>
@@ -120,40 +130,19 @@ export async function DashboardPage() {
                 <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#57a773]">
                   open to work / building in public
                 </p>
-                <h1 className="mb-3 max-w-3xl text-3xl font-extrabold leading-tight tracking-[-0.06em] sm:text-4xl">
+                <h1 className="mb-3  text-3xl font-extrabold leading-tight tracking-[-0.06em] sm:text-4xl">
                   I&apos;m tracking the next chapter
                   <span className="text-[#f0805c]">.</span>
                 </h1>
-                <p className="max-w-lg text-sm leading-6 text-[#8b97a7]">
+                <p className="max-w-xl text-sm leading-6 text-[#8b97a7]">
                   Recently made redundant, I am using this site as a live
                   resume, blog, and accountability dashboard while I look for
                   the right senior engineering role starting mid November.
                 </p>
               </div>
             </div>
-            <div className="grid gap-3 grid-cols-[300px_minmax(0,1fr)]">
-              <Card
-                size="sm"
-                className="rounded-xl border border-[#232b36] bg-[#0e1218] p-4 py-4 shadow-none ring-0"
-              >
-                <div className="text-[11px] font-semibold text-[#57a773]">
-                  {"// current_focus"}
-                </div>
-                <div className="mt-3 text-2xl font-extrabold tracking-[-0.04em] text-[#f0805c]">
-                  6 months
-                </div>
-                <p className="mt-2 text-xs leading-5 text-[#8b97a7]">
-                  Find a team where I can own product outcomes, write thoughtful
-                  software, and keep growing with other strong developers.
-                </p>
-                {apiUnavailable ? (
-                  <Badge className="mt-3 border-[#f0805c]/35 bg-[#f0805c]/15 font-mono text-[#f0805c]">
-                    using demo todos
-                  </Badge>
-                ) : null}
-              </Card>
-              <SkillRadarCard apiUnavailable={apiUnavailable} />
-            </div>
+
+            <SkillRadarCard apiUnavailable={apiUnavailable} />
           </div>
 
           <TimelineProgress todos={todos} goals={goals} />
@@ -171,21 +160,23 @@ export async function DashboardPage() {
                   >
                     <div className="flex items-start justify-between">
                       <div className="grid size-8 place-items-center rounded-lg bg-[#151a22]">
-                        <Target className={`size-4`} />
-                        {/* <Target className={`size-4 ${goal.color}`} /> */}
+                        {/* text-red-# is based on goal type */}
+                        <Target className={`size-4 text-red-700`} />
                       </div>
-                      {/* <div className={`text-lg font-bold ${goal.color}`}>
-                        {goal.progress}
+                      {/* text-red-# is based on progress to 100% */}
+                      <div className={`text-lg font-bold text-yellow-700`}>
+                        {/* {goal.progress} should be based on todos completed within a goal */}
+                        60
                         <span className="text-xs text-[#5d6878]">%</span>
-                      </div> */}
+                      </div>
                     </div>
                     <div>
                       <div className="text-[13px] font-semibold tracking-[-0.02em]">
                         {goal.name}
                       </div>
-                      {/* <div className="mt-1 text-[11px] text-[#5d6878]">
-                        {goal.done} / {goal.total} / due {goal.due}
-                      </div> */}
+                      <div className="mt-1 text-[11px] text-[#5d6878]">
+                        true / 10 / due 25-Nov
+                      </div>
                     </div>
                     {/* <div className="h-1.5 overflow-hidden rounded-full bg-[#151a22]">
                       <div
