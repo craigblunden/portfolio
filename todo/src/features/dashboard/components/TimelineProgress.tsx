@@ -174,7 +174,7 @@ function renderTodoDot({ cx, cy, payload }: TodoDotProps) {
 }
 
 export function TimelineProgress({ todos, goals }: TimelineProgressProps) {
-  const startDate = new Date(2026, 5, 3);
+  const startDate = new Date(2026, 6, 1);
   const endDate = new Date(2026, 10, 14);
   const today = new Date();
 
@@ -198,7 +198,7 @@ export function TimelineProgress({ todos, goals }: TimelineProgressProps) {
   };
 
   return (
-    <div className="mb-6 space-y-2">
+    <div className="mb-7 space-y-2">
       <div className="flex items-center justify-between px-1">
         <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#57a773]">
           six month runway

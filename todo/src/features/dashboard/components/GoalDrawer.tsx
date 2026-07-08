@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -10,16 +9,8 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Progress } from "@/components/ui/progress";
 import type { Goal } from "@/features/goals/api/goals";
-import {
-  Calendar,
-  Check,
-  Hash,
-  MoreHorizontal,
-  Rocket,
-  Target,
-} from "lucide-react";
+import { Calendar, Check, MoreHorizontal, Rocket, Target } from "lucide-react";
 import { MetaRow } from "./MetaRow";
 
 export function GoalDrawer({
