@@ -1,4 +1,4 @@
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const serverApiUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL;
 
 export type Todo = {
   id: number;
@@ -20,13 +20,17 @@ export type CreateTodoInput = {
 };
 
 const getApiUrl = () => {
-  if (!apiUrl) {
+  if (typeof window !== "undefined") {
+    return "/api/backend";
+  }
+
+  if (!serverApiUrl) {
     throw new Error(
-      "Missing API URL. Set NEXT_PUBLIC_API_URL (and optionally API_URL for server-only use).",
+      "Missing API URL. Set API_URL or NEXT_PUBLIC_API_URL.",
     );
   }
 
-  return apiUrl;
+  return serverApiUrl;
 };
 
 export const getTodos = async (offset: number, limit: number) => {
@@ -44,6 +48,7 @@ export const getTodos = async (offset: number, limit: number) => {
 export const createTodo = async ({ title }: CreateTodoInput) => {
   const res = await fetch(`${getApiUrl()}/todos`, {
     method: "POST",
+    credentials: "same-origin",
     headers: {
       "Content-Type": "application/json",
     },
@@ -60,6 +65,7 @@ export const createTodo = async ({ title }: CreateTodoInput) => {
 export const deleteTodo = async (id: number) => {
   const res = await fetch(`${getApiUrl()}/todos/${id}`, {
     method: "DELETE",
+    credentials: "same-origin",
   });
 
   if (!res.ok) {

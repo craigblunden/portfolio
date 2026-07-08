@@ -1,4 +1,5 @@
 // Controllers/TodosController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -27,6 +28,7 @@ public class TodosController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Delete(int id)
     {
         try
@@ -41,6 +43,7 @@ public class TodosController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Create(TodoRequestCreateDto todo)
     {
         var createdTodo = await _todoService.CreateAsync(todo);
