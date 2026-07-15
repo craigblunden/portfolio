@@ -6,31 +6,65 @@ export const fallbackTodos: Todo[] = [
     id: 1,
     title: "Publish redundancy reflection and next-role criteria",
     status: "Backlog",
+    goalId: 1,
   },
-  { id: 2, title: "Apply to five senior full-stack roles", status: "Backlog" },
+  {
+    id: 2,
+    title: "Apply to five senior full-stack roles",
+    status: "Backlog",
+    goalId: 1,
+  },
   {
     id: 3,
     title: "Ship public task tracker homepage refresh",
     status: "Backlog",
+    goalId: 1,
   },
   {
     id: 4,
     title: "Write case study for dotnettodo project",
     status: "Backlog",
+    goalId: 1,
   },
   {
     id: 5,
     title: "Reach out to three engineering leaders",
     status: "Backlog",
+    goalId: 1,
   },
 ];
 
 const baseSubtasks: Todo[] = [
-  { id: 1, title: "Define target role profile", status: "Completed" },
-  { id: 2, title: "Refresh resume and LinkedIn", status: "Completed" },
-  { id: 3, title: "Publish portfolio homepage", status: "Completed" },
-  { id: 4, title: "Write two technical case studies", status: "Backlog" },
-  { id: 5, title: "Build weekly outreach cadence", status: "Backlog" },
+  {
+    id: 1,
+    title: "Define target role profile",
+    status: "Completed",
+    goalId: 1,
+  },
+  {
+    id: 2,
+    title: "Refresh resume and LinkedIn",
+    status: "Completed",
+    goalId: 1,
+  },
+  {
+    id: 3,
+    title: "Publish portfolio homepage",
+    status: "Completed",
+    goalId: 1,
+  },
+  {
+    id: 4,
+    title: "Write two technical case studies",
+    status: "Backlog",
+    goalId: 1,
+  },
+  {
+    id: 5,
+    title: "Build weekly outreach cadence",
+    status: "Backlog",
+    goalId: 1,
+  },
 ];
 
 export const goals: Goal[] = [

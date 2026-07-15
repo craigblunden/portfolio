@@ -65,7 +65,7 @@ export const Todos = () => {
       >
         Next
       </Button>
-      <CreateTodo />
+      <CreateTodo goalId={1} />
     </div>
   );
 };

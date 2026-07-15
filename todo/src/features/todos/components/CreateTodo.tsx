@@ -21,7 +21,11 @@ const { useAppForm } = createFormHook({
   formContext,
 });
 
-export const CreateTodo = () => {
+type CreateTodoProps = {
+  goalId: number;
+};
+
+export const CreateTodo = ({ goalId }: CreateTodoProps) => {
   const queryClient = useQueryClient();
 
   const { mutateAsync, isPending } = useMutation({
@@ -46,7 +50,7 @@ export const CreateTodo = () => {
       }),
     },
     onSubmit: async ({ value }) => {
-      await mutateAsync({ title: value.title.trim() });
+      await mutateAsync({ title: value.title.trim(), goalId });
     },
   });
 
