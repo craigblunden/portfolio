@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
 import {
   ArrowUpRight,
+  Award,
   Briefcase,
   Code2,
   Contact,
@@ -17,6 +18,7 @@ import {
   priorRoles,
   skills,
   values,
+  type HighlightItem,
   type Role,
 } from "@/features/resume/data/resumeData";
 
@@ -104,6 +106,8 @@ function ContactLink({
 }
 
 function HeroRoleCard({ role }: { role: Role }) {
+  const primaryAchievements = role.primaryAchievements ?? [];
+
   return (
     <section className="relative overflow-hidden rounded-2xl border border-[#f0805c]/30 bg-linear-to-br from-[#1a1410] via-[#151a22] to-[#0e1218] p-6 shadow-[0_0_60px_-30px_rgba(240,128,92,0.35)] sm:p-8">
       <div
@@ -150,16 +154,47 @@ function HeroRoleCard({ role }: { role: Role }) {
         </p>
 
         <ul className="grid gap-2 sm:grid-cols-2">
-          {role.highlights.map((item) => (
+          {role.highlights.map(({ icon: Icon, text }) => (
             <li
-              key={item}
+              key={text}
               className="flex items-start gap-2 rounded-lg border border-[#232b36]/60 bg-[#0e1218]/60 p-3 text-[13px] text-[#c9d2df]"
             >
-              <Sparkles className="mt-0.5 size-3.5 shrink-0 text-[#f0805c]" />
-              <span>{item}</span>
+              <Icon className="mt-0.5 size-3.5 shrink-0 text-[#f0805c]" />
+              <span>{text}</span>
             </li>
           ))}
         </ul>
+
+        {primaryAchievements.length > 0 ? (
+          <div className="space-y-3 rounded-xl border border-[#f0805c]/20 bg-[#0e1218]/60 p-4">
+            <div className="flex items-center gap-2">
+              <Award className="size-4 text-[#f0805c]" />
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#e9eef5]">
+                primary achievements
+              </h3>
+              <span className="text-[11px] text-[#404a59]">
+                [{primaryAchievements.length}]
+              </span>
+            </div>
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {primaryAchievements.map(
+                ({ icon: Icon, text }: HighlightItem) => (
+                  <li
+                    key={text}
+                    className="flex items-start gap-3 rounded-lg border border-[#232b36]/60 bg-[#151a22]/60 p-3"
+                  >
+                    <span className="grid size-7 shrink-0 place-items-center rounded-md border border-[#f0805c]/30 bg-[#f0805c]/10 text-[#f0805c]">
+                      <Icon className="size-3.5" />
+                    </span>
+                    <span className="text-[12.5px] leading-relaxed text-[#c9d2df]">
+                      {text}
+                    </span>
+                  </li>
+                ),
+              )}
+            </ul>
+          </div>
+        ) : null}
 
         <StackList items={role.stack} tone="hero" />
       </div>
@@ -228,13 +263,13 @@ function RoleCard({ role }: { role: Role }) {
       </p>
 
       <ul className="mt-3 space-y-1.5">
-        {role.highlights.map((item) => (
+        {role.highlights.map(({ icon: Icon, text }) => (
           <li
-            key={item}
+            key={text}
             className="flex items-start gap-2 text-[12.5px] text-[#c9d2df]"
           >
-            <span className="mt-1.5 size-1 shrink-0 rounded-full bg-[#f0805c]" />
-            <span>{item}</span>
+            <Icon className="mt-0.5 size-3.5 shrink-0 text-[#f0805c]" />
+            <span>{text}</span>
           </li>
         ))}
       </ul>

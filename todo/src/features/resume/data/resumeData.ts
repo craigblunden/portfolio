@@ -1,10 +1,37 @@
+import {
+  BarChart,
+  Bot,
+  Boxes,
+  Code2,
+  Hammer,
+  Handshake,
+  LayoutDashboard,
+  MessagesSquare,
+  Network,
+  Plane,
+  Recycle,
+  Rocket,
+  ShieldCheck,
+  Siren,
+  Trophy,
+  UserPlus,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+
+export type HighlightItem = {
+  icon: LucideIcon;
+  text: string;
+};
+
 export type Role = {
   company: string;
   title: string;
   period: string;
   location?: string;
   summary: string;
-  highlights: string[];
+  highlights: HighlightItem[];
+  primaryAchievements?: HighlightItem[];
   stack: string[];
   link?: { label: string; href: string };
 };
@@ -15,17 +42,74 @@ export const heroRole: Role = {
   period: "2019 — Present",
   location: "Fortitude Valley, Australia · Sony Interactive Entertainment",
   summary:
-    "Building a competitive gaming platform used by millions of players, where gamers compete in tournaments and earn rewards across their favourite titles. Joined pre-acquisition as part of a small startup team and stayed on through the acquisition by Sony Interactive Entertainment, now sitting inside the wider PlayStation family.",
+    "Building a competitive gaming platform used by tens of thousands of daily active users, where gamers compete in tournaments and earn rewards across their favourite titles. Joined pre-acquisition as part of a small startup team and stayed on through the acquisition by Sony Interactive Entertainment, now sitting inside the wider PlayStation family.",
   highlights: [
-    "Part of the core team from startup through to major acquisition by Sony Interactive Entertainment.",
-    "Ship end-to-end features across web, mobile and backend inside a small, highly focused agile team.",
-    "Contribute to a strong microservice and event-driven architecture backed by Kafka, MySQL and MongoDB.",
-    "Develop React and React Native experiences alongside Node.js and PHP services running on AWS.",
-    "Drive quality with automated testing (Jest, Cypress, Playwright) and a test-driven engineering culture.",
-    "Assist with onboarding — participating in technical interviews and technical onboarding new team members.",
-    "Early experimentation with agentic AI workflows using GitHub Copilot and Cursor to accelerate delivery.",
-    "Collaborate with product, design and QA on technical planning, code reviews and iterative solutions.",
-    "Participate in the on-call roster, keeping the platform stable 24/7 for a global player base.",
+    {
+      icon: Rocket,
+      text: "Part of the core team from startup through to major acquisition by Sony Interactive Entertainment.",
+    },
+    {
+      icon: Boxes,
+      text: "Ship end-to-end features across web, mobile and backend inside a small, highly focused agile team.",
+    },
+    {
+      icon: Network,
+      text: "Contribute to the microservices and event-driven architecture backed by Kafka, MySQL and MongoDB.",
+    },
+    {
+      icon: Code2,
+      text: "Develop React and React Native experiences alongside Node.js and PHP services running on AWS.",
+    },
+    {
+      icon: ShieldCheck,
+      text: "Drive quality with automated testing (Jest, Cypress, Playwright) and a test-driven engineering culture.",
+    },
+    {
+      icon: UserPlus,
+      text: "Assist with onboarding — participating in technical interviews and technical onboarding of new team members.",
+    },
+    {
+      icon: Bot,
+      text: "Early experimentation with agentic AI workflows using GitHub Copilot and Cursor to accelerate delivery.",
+    },
+    {
+      icon: MessagesSquare,
+      text: "Collaborate with product, design and QA on technical planning, code reviews and iterative solutions.",
+    },
+    {
+      icon: Siren,
+      text: "Participate in the on-call roster, keeping the platform stable 24/7 for a global player base.",
+    },
+  ],
+  primaryAchievements: [
+    {
+      icon: Recycle,
+      text: "Migrated the UI from PHP / Twig to React, with proof-of-concept work delivered to move the platform towards Next.js.",
+    },
+    {
+      icon: Trophy,
+      text: "Assisted with the delivery of new tournament formats and scoring systems used by tens of thousands of daily active users.",
+    },
+    {
+      icon: Rocket,
+      text: "Consistently reviewed as a key contributor to high-impact over multiple years, exceeding the expectations of the role.",
+    },
+    {
+      icon: LayoutDashboard,
+      text: "Created architecture designs for new features, aligning engineering, product and design early in the process.",
+    },
+    {
+      icon: Bot,
+      text: "Created the original foundation for Jarvis, a Next.js / NestJS admin tool used by support and game admin teams to keep the platform running across content, moderation, order fulfillment and payments.",
+    },
+    {
+      icon: Plane,
+      text: "Travelled to San Francisco to network with the wider Sony Interactive global esports team and attend Game Developers Conference.",
+    },
+    {
+      icon: BarChart,
+      text: "Collaborated with wider Sony Interactive teams to integrate Adobe Analytics into critical user flows.",
+    },
   ],
   stack: [
     "TypeScript",
@@ -53,10 +137,22 @@ export const priorRoles: Role[] = [
     summary:
       "Worked on large-scale global travel booking products across AU, NZ and CA, helping transform a legacy platform into a full-stack micro frontend architecture.",
     highlights: [
-      "Built React components and Node.js API endpoints for a multi-million dollar revenue generating booking flow.",
-      "Delivered key features including the search form, traveller details form and payment forms.",
-      "Upgraded the frontend feature set to Material Design, aligning with the Flight Centre design system.",
-      "Onboarded new developers and proposed team process improvements.",
+      {
+        icon: Code2,
+        text: "Built React components and Node.js API endpoints for a multi-million dollar revenue generating booking flow.",
+      },
+      {
+        icon: Rocket,
+        text: "Enhanced existing features including the booking flow, search form, traveller details form and payment forms.",
+      },
+      {
+        icon: LayoutDashboard,
+        text: "Upgraded the frontend feature set to Material Design, aligning with the Flight Centre design system.",
+      },
+      {
+        icon: UserPlus,
+        text: "Onboarded new developers and proposed team process improvements.",
+      },
     ],
     stack: [
       "React",
@@ -77,11 +173,26 @@ export const priorRoles: Role[] = [
     summary:
       "Retail and wholesale management platform covering eCommerce, POS, inventory and fulfilment. Grew from front-end developer into a design manager leading a team of 11.",
     highlights: [
-      "Led a team of 11 project managers, designers and front-end developers across on and offshore.",
-      "Serviced some of Australia's biggest online retailers and oversaw hundreds of responsive eCommerce projects.",
-      "Awarded the inaugural “Spirit of Neto” by the CEO in 2015 for embodying Neto values.",
-      "Liaised with integration partners (InstantSearch+, Algolia), SEO and marketing agencies.",
-      "Wrote job descriptions, ran interviews and delivered annual performance reviews.",
+      {
+        icon: Users,
+        text: "Led a team of 11 project managers, designers and front-end developers across on and offshore.",
+      },
+      {
+        icon: Rocket,
+        text: "Serviced some of Australia's biggest online retailers and oversaw hundreds of responsive eCommerce projects.",
+      },
+      {
+        icon: Trophy,
+        text: "Awarded the inaugural “Spirit of Neto” by the CEO in 2015 for embodying Neto values.",
+      },
+      {
+        icon: Handshake,
+        text: "Liaised with integration partners (InstantSearch+, Algolia), SEO and marketing agencies.",
+      },
+      {
+        icon: MessagesSquare,
+        text: "Ran interviews and delivered annual performance reviews.",
+      },
     ],
     stack: ["HTML", "CSS", "JavaScript", "jQuery", "Node.js", "Figma", "B@SE"],
   },
@@ -92,9 +203,18 @@ export const priorRoles: Role[] = [
     summary:
       "Solo web developer for Australia's leading manufacturer of skylights and roof ventilation systems, owning their online presence end-to-end.",
     highlights: [
-      "Delivered and continuously improved the online experience for customers.",
-      "Liaised with external SEO and marketing partners to drive site outcomes.",
-      "Worked autonomously, defining and shipping my own initiatives.",
+      {
+        icon: Hammer,
+        text: "Delivered and continuously improved the online experience for customers.",
+      },
+      {
+        icon: Handshake,
+        text: "Liaised with external SEO and marketing partners to drive site outcomes.",
+      },
+      {
+        icon: Rocket,
+        text: "Worked autonomously, defining and shipping my own initiatives.",
+      },
     ],
     stack: ["PHP", "HTML", "CSS", "JavaScript", "WordPress"],
   },
@@ -105,8 +225,14 @@ export const priorRoles: Role[] = [
     summary:
       "Brisbane-based agency specialising in online marketing strategy, design and web development.",
     highlights: [
-      "Built responsive eCommerce sites, slicing and coding designs from Photoshop mockups.",
-      "Operated effectively in a fast-paced agency environment, learning the value of quality over speed.",
+      {
+        icon: Code2,
+        text: "Built responsive eCommerce sites, slicing and coding designs from Photoshop mockups.",
+      },
+      {
+        icon: ShieldCheck,
+        text: "Operated effectively in a fast-paced agency environment, learning the value of quality over speed.",
+      },
     ],
     stack: ["HTML", "CSS", "PHP", "Photoshop"],
   },
@@ -117,8 +243,14 @@ export const priorRoles: Role[] = [
     summary:
       "Web strategy consulting firm serving as an outsourced digital marketing team for its clients.",
     highlights: [
-      "Resolved UI issues and implemented website feature requests.",
-      "Supported the wider team with day-to-day development tasks.",
+      {
+        icon: Hammer,
+        text: "Resolved UI issues and implemented website feature requests.",
+      },
+      {
+        icon: Users,
+        text: "Supported the wider team with day-to-day development tasks.",
+      },
     ],
     stack: ["HTML", "CSS", "PHP", "Photoshop"],
   },
@@ -196,8 +328,8 @@ export const highlights = [
   },
   {
     label: "scale",
-    value: "millions",
-    note: "of players & customers served",
+    value: "10s of thousands",
+    note: "of daily active users served",
   },
 ];
 
