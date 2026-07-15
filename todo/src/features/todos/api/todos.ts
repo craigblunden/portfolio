@@ -6,6 +6,7 @@ export type Todo = {
   id: number;
   title: string;
   status: TodoStatus;
+  goalId?: number | null;
 };
 
 export type PagedTodosResponse = {
@@ -19,6 +20,13 @@ export type PagedTodosResponse = {
 
 export type CreateTodoInput = {
   title: string;
+  goalId?: number | null;
+};
+
+export type UpdateTodoInput = {
+  title?: string;
+  status?: TodoStatus;
+  goalId?: number | null;
 };
 
 const getApiUrl = () => {
@@ -27,9 +35,7 @@ const getApiUrl = () => {
   }
 
   if (!serverApiUrl) {
-    throw new Error(
-      "Missing API URL. Set API_URL or NEXT_PUBLIC_API_URL.",
-    );
+    throw new Error("Missing API URL. Set API_URL or NEXT_PUBLIC_API_URL.");
   }
 
   return serverApiUrl;
@@ -47,18 +53,35 @@ export const getTodos = async (offset: number, limit: number) => {
   return (await res.json()) as PagedTodosResponse;
 };
 
-export const createTodo = async ({ title }: CreateTodoInput) => {
+export const createTodo = async ({ title, goalId }: CreateTodoInput) => {
   const res = await fetch(`${getApiUrl()}/todos`, {
     method: "POST",
     credentials: "same-origin",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ title }),
+    body: JSON.stringify({ title, goalId: goalId ?? null }),
   });
 
   if (!res.ok) {
     throw new Error("Failed to create todo.");
+  }
+
+  return (await res.json()) as Todo;
+};
+
+export const updateTodo = async (id: number, input: UpdateTodoInput) => {
+  const res = await fetch(`${getApiUrl()}/todos/${id}`, {
+    method: "PUT",
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to update todo.");
   }
 
   return (await res.json()) as Todo;

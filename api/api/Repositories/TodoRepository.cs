@@ -20,6 +20,12 @@ public class TodoRepository : ITodoRepository
         await _context.SaveChangesAsync();
     }
 
+    public async Task UpdateAsync(Todo todo)
+    {
+        _context.Todos.Update(todo);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task RemoveAsync(int id)
     {
         var todo = await _context.Todos.FindAsync(id);

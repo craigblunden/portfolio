@@ -1,6 +1,6 @@
 import { Todo } from "@/features/todos/api/todos";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const serverApiUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL;
 
 export type Goal = {
   id: number;
@@ -19,13 +19,15 @@ export type PagedGoalsResponse = {
 };
 
 const getApiUrl = () => {
-  if (!apiUrl) {
-    throw new Error(
-      "Missing API URL. Set NEXT_PUBLIC_API_URL (and optionally API_URL for server-only use).",
-    );
+  if (typeof window !== "undefined") {
+    return "/api/backend";
   }
 
-  return apiUrl;
+  if (!serverApiUrl) {
+    throw new Error("Missing API URL. Set API_URL or NEXT_PUBLIC_API_URL.");
+  }
+
+  return serverApiUrl;
 };
 
 export const getGoals = async (offset: number, limit: number) => {
@@ -38,4 +40,26 @@ export const getGoals = async (offset: number, limit: number) => {
   }
 
   return (await res.json()) as PagedGoalsResponse;
+};
+
+export const getAllGoals = async (): Promise<Goal[]> => {
+  const allGoals: Goal[] = [];
+  let offset = 0;
+  const limit = 50;
+
+  while (true) {
+    const res = await fetch(
+      `${getApiUrl()}/goals?offset=${offset}&limit=${limit}`,
+    );
+
+    if (!res.ok) break;
+
+    const data = (await res.json()) as PagedGoalsResponse;
+    allGoals.push(...data.payload);
+
+    if (!data.meta.hasNextPage) break;
+    offset += limit;
+  }
+
+  return allGoals;
 };

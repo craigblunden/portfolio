@@ -49,4 +49,12 @@ public class TodosController : ControllerBase
         var createdTodo = await _todoService.CreateAsync(todo);
         return CreatedAtAction(nameof(GetById), new { id = createdTodo.Id }, createdTodo);
     }
+
+    [HttpPut("{id}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Update(int id, TodoRequestUpdateDto dto)
+    {
+        var updated = await _todoService.UpdateAsync(id, dto);
+        return updated is null ? NotFound() : Ok(updated);
+    }
 }

@@ -2,8 +2,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,7 +74,9 @@ builder
             if (!string.Equals(email, adminEmail, StringComparison.OrdinalIgnoreCase))
             {
                 context.RejectPrincipal();
-                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                await context.HttpContext.SignOutAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme
+                );
             }
         };
     })
@@ -90,14 +92,18 @@ builder
 
             if (!string.Equals(email, adminEmail, StringComparison.OrdinalIgnoreCase))
             {
-                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                await context.HttpContext.SignOutAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme
+                );
                 context.HandleResponse();
                 context.Response.Redirect("/?auth=denied");
             }
         };
         options.Events.OnRemoteFailure = async context =>
         {
-            await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await context.HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme
+            );
             context.HandleResponse();
             context.Response.Redirect("/?auth=denied");
         };
@@ -108,11 +114,13 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(
         "AdminOnly",
         policy =>
-            policy.RequireAuthenticatedUser()
+            policy
+                .RequireAuthenticatedUser()
                 .RequireAssertion(context =>
-                    context.User.Claims.Any(claim =>
-                        claim.Type == "email"
-                        && string.Equals(claim.Value, adminEmail, StringComparison.OrdinalIgnoreCase)
+                    string.Equals(
+                        context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value,
+                        adminEmail,
+                        StringComparison.OrdinalIgnoreCase
                     )
                 )
     );
@@ -124,9 +132,13 @@ builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IGoalRepository, GoalRepository>();
 builder.Services.AddScoped<IGoalService, GoalService>();
 
-builder.Services.AddControllers().AddJsonOptions(options =>
-    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter())
-);
+builder
+    .Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter()
+        )
+    );
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {

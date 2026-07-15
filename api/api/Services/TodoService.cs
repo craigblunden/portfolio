@@ -15,6 +15,10 @@ public class TodoService : ITodoService
     async Task<TodoResponseDto> ITodoService.CreateAsync(TodoRequestCreateDto dto)
     {
         var todo = new Todo { Title = dto.Title };
+        if (dto.GoalId.HasValue)
+        {
+            todo.GoalId = dto.GoalId.Value;
+        }
         await _todoRepository.AddAsync(todo);
         return ToResponse(todo);
     }
@@ -38,6 +42,28 @@ public class TodoService : ITodoService
         return todo is null ? null : ToResponse(todo);
     }
 
+    async Task<TodoResponseDto?> ITodoService.UpdateAsync(int id, TodoRequestUpdateDto dto)
+    {
+        var todo = await _todoRepository.GetByIdAsync(id);
+        if (todo is null)
+            return null;
+
+        if (dto.Title is not null)
+            todo.Title = dto.Title;
+        if (dto.Status.HasValue)
+            todo.Status = dto.Status.Value;
+        todo.GoalId = dto.GoalId ?? 0;
+
+        await _todoRepository.UpdateAsync(todo);
+        return ToResponse(todo);
+    }
+
     private static TodoResponseDto ToResponse(Todo todo) =>
-        new() { Id = todo.Id, Title = todo.Title, Status = todo.Status };
+        new()
+        {
+            Id = todo.Id,
+            Title = todo.Title,
+            Status = todo.Status,
+            GoalId = todo.GoalId == 0 ? null : todo.GoalId,
+        };
 }
