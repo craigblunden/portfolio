@@ -18,4 +18,12 @@ public class GoalsController : ControllerBase
         Console.WriteLine($"GetAll called with offset={offset} and limit={limit}");
         return Ok(await _goalService.GetAllAsync(offset, limit));
     }
+
+    [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Create(GoalRequestCreateDto dto)
+    {
+        var created = await _goalService.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetAll), new { }, created);
+    }
 }

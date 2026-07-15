@@ -6,7 +6,7 @@ export type Todo = {
   id: number;
   title: string;
   status: TodoStatus;
-  goalId?: number | null;
+  goalId: number;
 };
 
 export type PagedTodosResponse = {
@@ -20,13 +20,13 @@ export type PagedTodosResponse = {
 
 export type CreateTodoInput = {
   title: string;
-  goalId?: number | null;
+  goalId: number;
 };
 
 export type UpdateTodoInput = {
   title?: string;
   status?: TodoStatus;
-  goalId?: number | null;
+  goalId?: number;
 };
 
 const getApiUrl = () => {
@@ -60,7 +60,7 @@ export const createTodo = async ({ title, goalId }: CreateTodoInput) => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ title, goalId: goalId ?? null }),
+    body: JSON.stringify({ title, goalId }),
   });
 
   if (!res.ok) {

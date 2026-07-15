@@ -20,6 +20,18 @@ public class GoalService : IGoalService
         );
     }
 
+    async Task<GoalResponseDto> IGoalService.CreateAsync(GoalRequestCreateDto dto)
+    {
+        var goal = new Goal
+        {
+            Name = dto.Name,
+            Summary = dto.Summary,
+            Tags = dto.Tags ?? string.Empty,
+        };
+        await _goalRepository.AddAsync(goal);
+        return ToResponse(goal);
+    }
+
     private static GoalResponseDto ToResponse(Goal Goal) =>
         new()
         {
@@ -32,6 +44,7 @@ public class GoalService : IGoalService
                     Id = t.Id,
                     Title = t.Title,
                     Status = t.Status,
+                    GoalId = t.GoalId,
                 })
                 .ToList(),
         };

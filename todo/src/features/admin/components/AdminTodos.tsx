@@ -58,12 +58,11 @@ function GoalSelect({
   goals: Goal[];
 }) {
   return (
-    <Select value={value} onValueChange={onChange}>
+    <Select value={value} onValueChange={(v) => onChange(v ?? "")}>
       <SelectTrigger className="w-full border-[#232b36] bg-[#151a22] text-[#e9eef5]">
-        <SelectValue placeholder="No goal" />
+        <SelectValue placeholder="Select a goal" />
       </SelectTrigger>
       <SelectContent className="border-[#232b36] bg-[#0e1218]">
-        <SelectItem value="none">No goal</SelectItem>
         {goals.map((g) => (
           <SelectItem key={g.id} value={String(g.id)}>
             {g.name}
@@ -100,26 +99,28 @@ function StatusSelect({
 function CreateTodoDialog({ goals }: { goals: Goal[] }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
-  const [goalId, setGoalId] = useState<string>("none");
+  const [goalId, setGoalId] = useState<string>("");
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
       createTodo({
         title: title.trim(),
-        goalId: goalId !== "none" ? Number(goalId) : null,
+        goalId: Number(goalId),
       }),
     onSuccess: async () => {
       toast.success("Todo created.", { richColors: true });
       await queryClient.invalidateQueries({ queryKey: ["admin-todos"] });
       setTitle("");
-      setGoalId("none");
+      setGoalId("");
       setOpen(false);
     },
     onError: () => {
       toast.error("Failed to create todo.", { richColors: true });
     },
   });
+
+  const canSubmit = title.trim().length > 0 && goalId !== "" && goals.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -148,14 +149,19 @@ function CreateTodoDialog({ goals }: { goals: Goal[] }) {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[#8b97a7]">Goal (optional)</Label>
+            <Label className="text-[#8b97a7]">Goal</Label>
             <GoalSelect value={goalId} onChange={setGoalId} goals={goals} />
+            {goals.length === 0 && (
+              <p className="text-xs text-[#f0805c]">
+                Create a goal first before adding todos.
+              </p>
+            )}
           </div>
         </div>
         <DialogFooter>
           <Button
             onClick={() => mutate()}
-            disabled={isPending || !title.trim()}
+            disabled={isPending || !canSubmit}
             className="bg-[#57a773] font-mono text-[#0a0d12] hover:bg-[#6dbf8a]"
           >
             {isPending ? "Creating…" : "Create"}
@@ -171,7 +177,7 @@ function EditTodoDialog({ todo, goals }: { todo: Todo; goals: Goal[] }) {
   const [title, setTitle] = useState(todo.title);
   const [status, setStatus] = useState<TodoStatus>(todo.status);
   const [goalId, setGoalId] = useState<string>(
-    todo.goalId ? String(todo.goalId) : "none",
+    todo.goalId ? String(todo.goalId) : "",
   );
   const queryClient = useQueryClient();
 
@@ -180,7 +186,7 @@ function EditTodoDialog({ todo, goals }: { todo: Todo; goals: Goal[] }) {
       const input: UpdateTodoInput = {
         title: title.trim(),
         status,
-        goalId: goalId !== "none" ? Number(goalId) : null,
+        goalId: Number(goalId),
       };
       return updateTodo(todo.id, input);
     },
@@ -193,6 +199,8 @@ function EditTodoDialog({ todo, goals }: { todo: Todo; goals: Goal[] }) {
       toast.error("Failed to update todo.", { richColors: true });
     },
   });
+
+  const canSubmit = title.trim().length > 0 && goalId !== "";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -227,14 +235,14 @@ function EditTodoDialog({ todo, goals }: { todo: Todo; goals: Goal[] }) {
             <StatusSelect value={status} onChange={setStatus} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[#8b97a7]">Goal (optional)</Label>
+            <Label className="text-[#8b97a7]">Goal</Label>
             <GoalSelect value={goalId} onChange={setGoalId} goals={goals} />
           </div>
         </div>
         <DialogFooter>
           <Button
             onClick={() => mutate()}
-            disabled={isPending || !title.trim()}
+            disabled={isPending || !canSubmit}
             className="bg-[#57a773] font-mono text-[#0a0d12] hover:bg-[#6dbf8a]"
           >
             {isPending ? "Saving…" : "Save"}

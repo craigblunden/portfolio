@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Code2, Home, Layers3, Menu, Rocket, Zap } from "lucide-react";
+import { FileUser, Home, Menu, Zap } from "lucide-react";
 import Link from "next/link";
 
 type NavItem = {
@@ -17,20 +17,21 @@ type NavItem = {
   shortcut?: string;
   badge?: string;
   active?: boolean;
+  href: string;
 };
 
 const navItems: NavItem[] = [
-  { label: "home", icon: Home, shortcut: "1", active: true },
-  { label: "goals", icon: Zap, shortcut: "2" },
+  { label: "home", icon: Home, shortcut: "1", active: true, href: "/" },
+  { label: "goals", icon: Zap, shortcut: "2", href: "/goals" },
   // { label: "writing", icon: BookOpen, shortcut: "3" },
   // { label: "timeline", icon: Calendar, badge: "6m" },
 ];
 
 const listItems = [
-  { label: "resume", icon: Layers3, count: 4 },
-  { label: "projects", icon: Rocket, count: 2 },
+  { label: "resume", icon: FileUser, count: 4, href: "/resume" },
+  // { label: "projects", icon: Rocket, count: 2 },
   // { label: "commits", icon: GitBranch, count: 3 },
-  { label: "job-search", icon: Code2, count: 5 },
+  // { label: "job-search", icon: Code2, count: 5 },
 ];
 
 export function AppSidebar() {
@@ -84,35 +85,37 @@ function SidebarContent({ className }: { className?: string }) {
   return (
     <div className={className}>
       <NavGroup>
-        {navItems.map(({ label, icon: Icon, shortcut, badge, active }) => (
-          <Link
-            key={label}
-            href="/"
-            className={`flex w-full items-center gap-2 rounded-lg px-2 py-2.5 text-left text-[13px] transition ${
-              active
-                ? "bg-[#1e2630] text-[#e9eef5]"
-                : "text-[#8b97a7] hover:bg-[#151a22] hover:text-[#e9eef5]"
-            }`}
-          >
-            <Icon className="size-4" />
-            <span className="flex-1">{label}</span>
-            {badge ? (
-              <span className="rounded bg-[#f0805c]/15 px-1.5 py-0.5 text-[10px] font-semibold text-[#f0805c]">
-                {badge}
-              </span>
-            ) : (
-              <span className="text-[11px] text-[#404a59]">{shortcut}</span>
-            )}
-          </Link>
-        ))}
+        {navItems.map(
+          ({ label, icon: Icon, shortcut, badge, active, href }) => (
+            <Link
+              key={label}
+              href={href}
+              className={`flex w-full items-center gap-2 rounded-lg px-2 py-2.5 text-left text-[13px] transition ${
+                active
+                  ? "bg-[#1e2630] text-[#e9eef5]"
+                  : "text-[#8b97a7] hover:bg-[#151a22] hover:text-[#e9eef5]"
+              }`}
+            >
+              <Icon className="size-4" />
+              <span className="flex-1">{label}</span>
+              {badge ? (
+                <span className="rounded bg-[#f0805c]/15 px-1.5 py-0.5 text-[10px] font-semibold text-[#f0805c]">
+                  {badge}
+                </span>
+              ) : (
+                <span className="text-[11px] text-[#404a59]">{shortcut}</span>
+              )}
+            </Link>
+          ),
+        )}
       </NavGroup>
 
       <SectionLabel>site</SectionLabel>
       <NavGroup>
-        {listItems.map(({ label, icon: Icon, count }) => (
+        {listItems.map(({ label, icon: Icon, count, href }) => (
           <Link
             key={label}
-            href="/"
+            href={href}
             className="flex w-full items-center gap-2 rounded-lg px-2 py-2.5 text-left text-[13px] text-[#8b97a7] transition hover:bg-[#151a22] hover:text-[#e9eef5]"
           >
             <Icon className="size-4" />

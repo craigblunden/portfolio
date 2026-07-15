@@ -17,5 +17,11 @@ public class GoalRepository : IGoalRepository
             .Take(limit)
             .ToListAsync();
 
+    public async Task AddAsync(Goal goal)
+    {
+        await _context.Goals.AddAsync(goal);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<int> GetTotalCountAsync() => await _context.Goals.CountAsync();
 }

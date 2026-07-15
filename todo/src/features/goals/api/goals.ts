@@ -63,3 +63,30 @@ export const getAllGoals = async (): Promise<Goal[]> => {
 
   return allGoals;
 };
+
+export type CreateGoalInput = {
+  name: string;
+  summary: string;
+  tags?: string;
+};
+
+export const createGoal = async (input: CreateGoalInput) => {
+  const res = await fetch(`${getApiUrl()}/goals`, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: input.name,
+      summary: input.summary,
+      tags: input.tags ?? "",
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to create goal.");
+  }
+
+  return (await res.json()) as Goal;
+};

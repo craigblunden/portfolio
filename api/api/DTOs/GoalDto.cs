@@ -1,3 +1,10 @@
+public class GoalRequestCreateDto
+{
+    public required string Name { get; set; }
+    public required string Summary { get; set; }
+    public string? Tags { get; set; }
+}
+
 public class GoalResponseDto
 {
     public int Id { get; set; }
