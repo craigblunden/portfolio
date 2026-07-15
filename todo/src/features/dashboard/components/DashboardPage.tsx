@@ -33,7 +33,9 @@ type DashboardPageProps = {
   authDenied?: boolean;
 };
 
-export async function DashboardPage({ authDenied = false }: DashboardPageProps) {
+export async function DashboardPage({
+  authDenied = false,
+}: DashboardPageProps) {
   const queryClient = new QueryClient();
   const { isAuthenticated, isAdmin } = await getAdminSession();
 
@@ -102,12 +104,10 @@ export async function DashboardPage({ authDenied = false }: DashboardPageProps) 
                 </Button>
                 <AdminSessionButton />
               </>
-            ) : (
-              // <div className="flex w-full justify-end">
-              //   <AdminSignIn />
-              // </div>
-              null
-            )}
+            ) : // <div className="flex w-full justify-end">
+            //   <AdminSignIn />
+            // </div>
+            null}
           </header>
         ) : null}
 
@@ -120,13 +120,7 @@ export async function DashboardPage({ authDenied = false }: DashboardPageProps) 
 
           <div className="mb-7 grid gap-4 lg:grid-cols-2">
             <div className="flex min-h-90 flex-col">
-              <div
-                className="relative min-h-50 flex-1 overflow-hidden rounded-xl border border-[#232b36] bg-[#0e1218] bg-cover bg-center bg-no-repeat"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(180deg, rgba(10,13,18,0.1) 0%, rgba(10,13,18,0.88) 92%), url('/self-portrait.jpg')",
-                }}
-              >
+              <div className="relative min-h-50 flex-1 overflow-hidden rounded-xl border border-[#232b36] bg-[#0e1218] bg-cover bg-center bg-no-repeat">
                 <Image
                   className="absolute inset-0 h-full w-full object-cover"
                   src="/imgs/craig.png"
@@ -134,6 +128,13 @@ export async function DashboardPage({ authDenied = false }: DashboardPageProps) 
                   width={300}
                   height={200}
                   loading="eager"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(10,13,18,0.1) 0%, rgba(10,13,18,0.88) 92%)",
+                  }}
                 />
 
                 <span className="absolute bottom-3 left-3 rounded-md border border-[#232b36] bg-[#0a0d12]/80 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-[#8b97a7]">

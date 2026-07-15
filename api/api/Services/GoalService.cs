@@ -31,7 +31,7 @@ public class GoalService : IGoalService
                 {
                     Id = t.Id,
                     Title = t.Title,
-                    IsCompleted = t.IsCompleted,
+                    Status = t.Status,
                 })
                 .ToList(),
         };

@@ -20,7 +20,7 @@ export function GoalDrawer({
   goal: Goal;
   children: React.ReactNode;
 }) {
-  const doneCount = goal.todos.filter((todo) => todo.isCompleted).length;
+  const doneCount = goal.todos.filter((todo) => todo.status === "Completed").length;
 
   return (
     <Drawer direction="right">
@@ -90,18 +90,18 @@ export function GoalDrawer({
               >
                 <span
                   className={`grid size-4 place-items-center rounded border ${
-                    todo.isCompleted
+                    todo.status === "Completed"
                       ? "border-[#4ec98a] bg-[#4ec98a]"
                       : "border-[#303a48]"
                   }`}
                 >
-                  {todo.isCompleted ? (
+                  {todo.status === "Completed" ? (
                     <Check className="size-3 text-[#0e1218]" />
                   ) : null}
                 </span>
                 <span
                   className={
-                    todo.isCompleted ? "text-[#5d6878] line-through" : undefined
+                    todo.status === "Completed" ? "text-[#5d6878] line-through" : undefined
                   }
                 >
                   {todo.title}

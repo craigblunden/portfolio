@@ -39,5 +39,5 @@ public class TodoService : ITodoService
     }
 
     private static TodoResponseDto ToResponse(Todo todo) =>
-        new() { Id = todo.Id, Title = todo.Title };
+        new() { Id = todo.Id, Title = todo.Title, Status = todo.Status };
 }

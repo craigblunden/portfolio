@@ -5,32 +5,32 @@ export const fallbackTodos: Todo[] = [
   {
     id: 1,
     title: "Publish redundancy reflection and next-role criteria",
-    isCompleted: false,
+    status: "Backlog",
   },
-  { id: 2, title: "Apply to five senior full-stack roles", isCompleted: false },
+  { id: 2, title: "Apply to five senior full-stack roles", status: "Backlog" },
   {
     id: 3,
     title: "Ship public task tracker homepage refresh",
-    isCompleted: false,
+    status: "Backlog",
   },
   {
     id: 4,
     title: "Write case study for dotnettodo project",
-    isCompleted: false,
+    status: "Backlog",
   },
   {
     id: 5,
     title: "Reach out to three engineering leaders",
-    isCompleted: false,
+    status: "Backlog",
   },
 ];
 
 const baseSubtasks: Todo[] = [
-  { id: 1, title: "Define target role profile", isCompleted: true },
-  { id: 2, title: "Refresh resume and LinkedIn", isCompleted: true },
-  { id: 3, title: "Publish portfolio homepage", isCompleted: true },
-  { id: 4, title: "Write two technical case studies", isCompleted: false },
-  { id: 5, title: "Build weekly outreach cadence", isCompleted: false },
+  { id: 1, title: "Define target role profile", status: "Completed" },
+  { id: 2, title: "Refresh resume and LinkedIn", status: "Completed" },
+  { id: 3, title: "Publish portfolio homepage", status: "Completed" },
+  { id: 4, title: "Write two technical case studies", status: "Backlog" },
+  { id: 5, title: "Build weekly outreach cadence", status: "Backlog" },
 ];
 
 export const goals: Goal[] = [

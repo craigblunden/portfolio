@@ -1,9 +1,11 @@
 const serverApiUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL;
 
+export type TodoStatus = "Backlog" | "InProgress" | "Blocked" | "Completed";
+
 export type Todo = {
   id: number;
   title: string;
-  isCompleted: boolean;
+  status: TodoStatus;
 };
 
 export type PagedTodosResponse = {

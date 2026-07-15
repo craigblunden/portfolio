@@ -101,7 +101,7 @@ function buildTodoCompletionsByDay(
   const runwayStart = startOfDay(startDate);
   const runwayEnd = startOfDay(endDate);
   const completedFallbackCount = todos.filter(
-    (todo) => todo.isCompleted,
+    (todo) => todo.status === "Completed",
   ).length;
 
   todos.forEach((todo) => {

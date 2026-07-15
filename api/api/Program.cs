@@ -124,7 +124,9 @@ builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IGoalRepository, GoalRepository>();
 builder.Services.AddScoped<IGoalService, GoalService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter())
+);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
