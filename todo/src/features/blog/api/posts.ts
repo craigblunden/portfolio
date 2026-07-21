@@ -60,7 +60,12 @@ async function readPostFile(dir: string, filename: string) {
   };
 }
 
-async function readAll(dir: string): Promise<Array<PostMeta & { content: string }>> {
+type LoadedPost = {
+  meta: PostMeta;
+  content: string;
+};
+
+async function readAll(dir: string): Promise<LoadedPost[]> {
   const filenames = (await readdir(dir)).filter((name) => name.endsWith(".md"));
 
   return Promise.all(
@@ -68,9 +73,7 @@ async function readAll(dir: string): Promise<Array<PostMeta & { content: string 
       const { frontmatter, slug, content } = await readPostFile(dir, filename);
 
       return {
-        ...frontmatter,
-        slug,
-        readingTime: getReadingTime(content),
+        meta: { ...frontmatter, slug, readingTime: getReadingTime(content) },
         content,
       };
     }),
@@ -85,9 +88,7 @@ export async function loadAllPosts({
   const posts = await readAll(dir);
 
   return sortByDateDesc(
-    posts
-      .filter((post) => isListable(post.status, includeDrafts))
-      .map(({ content: _content, ...meta }) => meta),
+    posts.filter((post) => isListable(post.meta.status, includeDrafts)).map((post) => post.meta),
   );
 }
 
@@ -99,9 +100,7 @@ export async function loadRoutablePosts({
   const posts = await readAll(dir);
 
   return sortByDateDesc(
-    posts
-      .filter((post) => isRoutable(post.status, includeDrafts))
-      .map(({ content: _content, ...meta }) => meta),
+    posts.filter((post) => isRoutable(post.meta.status, includeDrafts)).map((post) => post.meta),
   );
 }
 
@@ -111,13 +110,11 @@ export async function loadPostBySlug(
   { dir = BLOG_DIR, includeDrafts = draftsVisibleByDefault() }: LoadOptions = {},
 ): Promise<Post | null> {
   const posts = await readAll(dir);
-  const post = posts.find((candidate) => candidate.slug === slug);
+  const post = posts.find((candidate) => candidate.meta.slug === slug);
 
-  if (!post || !isRoutable(post.status, includeDrafts)) {
+  if (!post || !isRoutable(post.meta.status, includeDrafts)) {
     return null;
   }
 
-  const { content, ...meta } = post;
-
-  return { ...meta, html: await renderMarkdown(content) };
+  return { ...post.meta, html: await renderMarkdown(post.content) };
 }
