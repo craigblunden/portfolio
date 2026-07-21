@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/components/common/AppProviders";
 // import { AppSidebar } from "@/components/common/AppSidebar";
+import { EditorTabs } from "@/components/common/EditorTabs";
 import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -40,10 +41,11 @@ export default function RootLayout({
       )}
     >
       <body className="h-full font-sans">
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="flex min-h-screen flex-col bg-background text-foreground">
           {/* <AppSidebar /> */}
+          <EditorTabs />
 
-          <main className="min-w-0 bg-background text-foreground">
+          <main className="min-w-0 flex-1 bg-background text-foreground">
             <AppProviders>{children}</AppProviders>
           </main>
         </div>

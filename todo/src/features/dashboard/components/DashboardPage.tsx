@@ -13,8 +13,6 @@ import {
   CircleDot,
   Code2,
   Crosshair,
-  FileCode2,
-  FileText,
   GitBranch,
   OctagonAlert,
   PenLine,
@@ -32,8 +30,6 @@ import { GoalDrawer } from "./GoalDrawer";
 import { getGoals, PagedGoalsResponse } from "@/features/goals/api/goals";
 import { getGoalProgress } from "@/features/goals/lib/goalProgress";
 import type { Todo, TodoStatus } from "@/features/todos/api/todos";
-import { AdminSessionButton } from "@/features/auth/components/AdminSessionButton";
-import { getAdminSession } from "@/features/auth/api/session";
 
 const blogStatusStyles: Record<BlogStatus, string> = {
   published: "bg-success/15 text-success",
@@ -60,7 +56,6 @@ export async function DashboardPage({
   authDenied = false,
 }: DashboardPageProps) {
   const queryClient = new QueryClient();
-  const { isAdmin } = await getAdminSession();
 
   try {
     await queryClient.prefetchQuery({
@@ -84,9 +79,7 @@ export async function DashboardPage({
   const recentlyCompleted = completedTasks.slice(0, COMPLETED_DISPLAY_CAP);
 
   return (
-    <div className="flex min-h-screen flex-col overflow-x-hidden bg-background font-mono text-foreground">
-      <EditorTabs isAdmin={isAdmin} />
-
+    <div className="flex min-h-full flex-col overflow-x-hidden bg-background font-mono text-foreground">
       <div className="min-h-0 flex-1 px-4 py-5 sm:px-6">
         {authDenied ? (
           <div className="mb-5 rounded-xl border border-primary/35 bg-primary/10 px-4 py-3 text-sm text-primary">
@@ -219,29 +212,6 @@ export async function DashboardPage({
       </div>
 
       <StatusBar />
-    </div>
-  );
-}
-
-function EditorTabs({ isAdmin }: { isAdmin: boolean }) {
-  return (
-    <div className="flex items-center border-b border-border bg-card">
-      <span className="flex items-center gap-2 border-r border-border bg-background px-4 py-2.5 text-[13px] text-foreground shadow-[inset_0_2px_0_0_var(--primary)]">
-        <FileCode2 className="size-3.5 text-primary" />
-        home.tsx
-      </span>
-      <Link
-        href="/resume"
-        className="flex items-center gap-2 border-r border-border px-4 py-2.5 text-[13px] text-muted-foreground transition hover:bg-background hover:text-foreground"
-      >
-        <FileText className="size-3.5" />
-        resume.md
-      </Link>
-      {isAdmin ? (
-        <div className="ml-auto flex items-center pr-3">
-          <AdminSessionButton />
-        </div>
-      ) : null}
     </div>
   );
 }
