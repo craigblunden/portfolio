@@ -1,0 +1,267 @@
+# Todo: Markdown Blog / Learning Log
+
+Spec: `tasks/spec-blog.md` · Plan: `tasks/plan-blog.md`
+
+> **Status:** Not started. Awaiting approval of spec + plan.
+
+Frontend commands run from `todo/`, backend from `api/api/` (tests from `api/`).
+Every frontend task must leave `pnpm lint`, `pnpm typecheck`, `pnpm test --run` green;
+every backend task must leave `dotnet test` green.
+
+---
+
+## Track A: Backend goal slugs
+
+*Independent of Track B — can run in parallel.*
+
+- [x] **A0: Solution file and test project** — done, `f0b5792`
+  - Acceptance: `api/portfolio-api.slnx` includes `api` and a new `api.Tests` project
+    referencing it. `HarnessTests` proves discovery and the project reference both work.
+  - Verify: `dotnet test` from `api/` — 1 passed. ✅
+  - Files: `portfolio-api.slnx`, `api.Tests/api.Tests.csproj`, `api.Tests/HarnessTests.cs`,
+    `api.Tests/.gitignore`
+
+  **Deviations from plan, deliberate:**
+  - **Only `xunit.v3` + runner installed**, not all six packages. NSubstitute, Mvc.Testing,
+    and EFCore.Sqlite are added in A3/A4 when first used — installing unused dependencies
+    up front is speculative.
+  - **`public partial class Program { }` deferred to A4**, where `WebApplicationFactory`
+    actually needs it. It is a production-file change and belongs in the commit that
+    justifies it.
+  - **Solution is `.slnx`, not `.sln`.** The .NET 10 SDK's `dotnet new sln` now emits the
+    XML format by default. Fine for SDK-driven work; older Visual Studio versions may not
+    open it.
+  - **xUnit v2 → v3 conversion.** The `dotnet new xunit` template still scaffolds 2.9.3.
+    v3 test projects are self-executing, hence `<OutputType>Exe</OutputType>`.
+  - **Added `api.Tests/.gitignore`.** The existing ignore file is scoped to `api/api/`, so
+    the new project's `bin`/`obj` were untracked-but-not-ignored.
+
+- [ ] **A1: Slug generator and model column, test-first**
+  - Acceptance: `SlugGeneratorTests` covers the full spec table via `[Theory]`/`[InlineData]`
+    — accents, punctuation, whitespace collapse, empty → `goal` — plus `EnsureUniqueAsync`
+    returning free slugs unchanged and suffixing `-2`, `-3` on collision. `Goal` gains a
+    required `Slug`; `AppDbContext` declares the unique index. No migration yet.
+  - Verify: `dotnet test --filter FullyQualifiedName~SlugGenerator` green; `dotnet build`
+    succeeds.
+  - Files: `Models/GoalModel.cs`, `Data/AppDbContext.cs`, `Services/SlugGenerator.cs`,
+    `api.Tests/Services/SlugGeneratorTests.cs`
+
+- [ ] **A2: Create and apply the `AddGoalSlug` migration** ⚠
+  - Acceptance: migration adds the column with a `''` default, backfills existing rows via
+    `UPDATE`, then creates the unique index — three explicit steps, in that order.
+    Backfilled slugs are reviewed by hand and corrected to read well.
+  - Verify: `dotnet ef migrations script` read in full **before applying**. After
+    `dotnet ef database update`, query the Goals table — every row has a unique, non-empty,
+    kebab-case slug. Confirm `dotnet ef database update <prev>` rolls back cleanly.
+  - Files: `Migrations/<ts>_AddGoalSlug.cs`
+  - **Commit alone**, so it can be reverted independently.
+
+- [ ] **A3: Expose slug through the API**
+  - Acceptance: `GoalResponseDto` carries `Slug`; `GoalRequestCreateDto` accepts an optional
+    `Slug`, derived from `Name` when omitted; `CreateAsync` generates and de-duplicates via
+    `SlugGenerator`; `IGoalRepository.SlugExistsAsync` implemented.
+    `GoalServiceTests` (NSubstitute over `IGoalRepository`) covers slug derivation, explicit
+    slug honoured, collision suffixing, `Slug` mapped onto the DTO, and paging metadata at
+    boundaries — empty set, exact multiple of `limit`, partial final page.
+  - Verify: `dotnet test` green. `curl localhost:5189/api/goals` returns `slug` on every
+    goal. POST a goal named `C# & .NET: deep dive!` → `c-net-deep-dive`; POST it again →
+    `c-net-deep-dive-2`.
+  - Files: `DTOs/GoalDto.cs`, `Services/GoalService.cs`, `Repositories/IGoalRepository.cs`,
+    `Repositories/GoalRepository.cs`, `api.Tests/Services/GoalServiceTests.cs`
+
+- [ ] **A4: Repository and endpoint tests**
+  - Acceptance: `SqliteInMemoryFixture` opens and holds a `:memory:` connection and applies
+    migrations. `GoalRepositoryTests` proves a duplicate slug insert **throws**, that
+    `SlugExistsAsync` is correct, that paging returns the right rows with `Todos` included,
+    and that migrations apply cleanly to an empty database. `GoalsEndpointTests` is one thin
+    smoke test: `GET /api/goals` → 200 with `slug` on every goal; unauthenticated
+    `POST /api/goals` → 401.
+  - Verify: `dotnet test` green. Then **temporarily remove the unique index and confirm the
+    duplicate-slug test fails** — if it still passes it is not testing what it claims.
+    Restore the index.
+  - Files: `api.Tests/Infrastructure/{SqliteInMemoryFixture,TestWebApplicationFactory}.cs`,
+    `api.Tests/Repositories/GoalRepositoryTests.cs`,
+    `api.Tests/Integration/GoalsEndpointTests.cs`
+  - If `WebApplicationFactory` resists booting, drop the endpoint tests rather than sinking
+    time — Tiers 1–3 already cover the logic. Note the drop here.
+
+---
+
+## Track B: Markdown pipeline
+
+- [ ] **B1: Add dependencies and the first real post**
+  - Acceptance: the nine approved packages installed; `todo/content/blog/` exists with one
+    genuine article (not lorem ipsum) containing headings, a code fence, a list, and a link,
+    with complete valid frontmatter.
+  - Verify: `pnpm install` clean; `pnpm build` still passes with the content unused.
+  - Files: `package.json`, `content/blog/<slug>.md`
+
+- [ ] **B2: Frontmatter, slug, and reading-time libraries**
+  - Acceptance: `slugFromFilename` rejects non-`.md` and non-kebab names; `getReadingTime`
+    excludes code fences from word count; `parseFrontmatter` validates the full schema with
+    Zod and throws errors naming file *and* field.
+  - Verify: `pnpm test --run src/features/blog`
+  - Files: `src/features/blog/lib/{slug,readingTime,frontmatter}.ts` + `__tests__/`
+  - 🔵 **Human contribution point** — the frontmatter Zod schema. See note at the bottom.
+
+- [ ] **B3: Markdown rendering pipeline**
+  - Acceptance: `renderMarkdown(md)` returns an HTML string via unified — GFM tables, task
+    lists, heading ids, autolinked headings, and Shiki-highlighted code fences all working.
+  - Verify: temporary script or test rendering the B1 post; inspect the HTML by eye.
+  - Files: `src/features/blog/lib/markdown.ts`
+
+- [ ] **B4: Post loader**
+  - Acceptance: `loadAllPosts()` returns sorted metadata (newest first, deterministic ties);
+    `loadPostBySlug()` returns one post with rendered HTML; `planned` never routable;
+    `draft` visible only when `NODE_ENV=development`.
+  - Verify: `pnpm test --run src/features/blog` — status filtering and sort order covered.
+  - Files: `src/features/blog/api/posts.ts` + `__tests__/posts.test.ts`
+
+---
+
+## Track C: Routes
+
+- [ ] **C1: Single post route**
+  - Acceptance: `/blog/<slug>` renders title, date, reading time, tags, and body with prose
+    styling built on existing design tokens. `generateStaticParams` covers routable posts;
+    `dynamicParams = false`; unknown slug 404s.
+  - Verify: `pnpm dev`, load the B1 post. Load a nonsense slug → 404.
+  - Files: `src/app/blog/[slug]/page.tsx`, `src/app/blog/[slug]/not-found.tsx`,
+    `src/features/blog/components/{PostBody,PostMeta}.tsx`
+
+- [ ] **C2: BUILD GATE — verify standalone output** ⚠⚠
+  - Acceptance: a production build serves the post correctly.
+  - Verify: `pnpm build && pnpm start`, load `/blog/<slug>`. Confirm the post HTML is
+    generated at build time, not read at request time.
+  - **Do not start C3 until this passes.** On failure, stop and raise the
+    `outputFileTracingIncludes` change — it modifies `next.config.ts`, which is ask-first.
+  - Files: none (verification only)
+
+- [ ] **C3: Blog index**
+  - Acceptance: `/blog` lists routable posts newest-first with title, description, date,
+    reading time, tags. `planned` posts excluded. Empty state handled.
+  - Verify: `pnpm dev` → `/blog`. Add a second post, confirm ordering. Set one to `draft`,
+    confirm it shows in dev and vanishes from `pnpm build && pnpm start`.
+  - Files: `src/app/blog/page.tsx`, `src/features/blog/components/{PostCard,PostList}.tsx`
+
+---
+
+## Track D: SEO
+
+- [ ] **D1: Site URL and root metadata**
+  - Acceptance: `NEXT_PUBLIC_SITE_URL` read into `metadataBase`, defaulting to
+    `http://localhost:3000`. Root layout's placeholder `"Create Next App"` metadata replaced
+    with real title/description. Domain hardcoded nowhere.
+  - Verify: view source on `/` — correct title, absolute OG URLs.
+  - Files: `src/app/layout.tsx`, `.env.local`, `todo/README.md`
+
+- [ ] **D2: Per-post metadata and structured data**
+  - Acceptance: `generateMetadata` emits title, description, canonical, OG (`type: article`,
+    `publishedTime`, `modifiedTime`), and Twitter card. Valid `BlogPosting` JSON-LD.
+  - Verify: view source on a post; paste JSON-LD into a structured-data validator.
+  - Files: `src/app/blog/[slug]/page.tsx`
+
+- [ ] **D3: Sitemap and robots**
+  - Acceptance: `sitemap.xml` lists `/`, `/resume`, `/blog`, and published posts only, using
+    `updated ?? date` as `lastModified`. `robots.txt` allows all, disallows `/admin`, points
+    at the sitemap.
+  - Verify: `pnpm build && pnpm start`, then `curl localhost:3000/sitemap.xml` and
+    `/robots.txt`. Confirm no draft or planned post appears.
+  - Files: `src/app/sitemap.ts`, `src/app/robots.ts`
+
+---
+
+## Track E: Integration
+
+*Strictly sequential. E1 needs A3 and B4 complete.*
+
+- [ ] **E1: Slugs into frontend types**
+  - Acceptance: `Goal` type gains `slug: string`; fixture goals in `dashboardData.ts` get
+    slugs matching the migrated DB rows; `Project` type gains a required `slug`, with values
+    added to both existing projects.
+  - Verify: `pnpm typecheck` — every construction site updated.
+  - Files: `src/features/goals/api/goals.ts`, `src/features/dashboard/data/dashboardData.ts`,
+    `src/features/dashboard/data/projectsData.ts`
+
+- [ ] **E2: Attachment resolution**
+  - Acceptance: `postsForGoal(slug)` / `postsForProject(slug)` group correctly; unknown
+    project slug throws; unknown goal slug warns; malformed slug throws; API unreachable
+    skips goal validation without failing.
+  - Verify: `pnpm test --run src/features/blog`. Then **stop the API and run `pnpm build`** —
+    it must succeed.
+  - Files: `src/features/blog/lib/attachments.ts` + `__tests__/attachments.test.ts`
+
+- [ ] **E3: Surface attachments on goals and projects**
+  - Acceptance: attachment is optional in both directions and **absence is the common case**.
+    A goal or project with articles shows a lightweight "read more" affordance listing them;
+    one without renders **byte-identically to today** — no heading, no empty state, no
+    placeholder, no reserved space. Multiple articles all list.
+  - Verify: `pnpm dev` with three fixtures — a goal with zero articles (unchanged from
+    `develop`, confirm by screenshot diff or eye), one with a single article, one with two.
+    Same for a project. Confirm links resolve.
+  - Files: `src/features/blog/components/AttachedArticles.tsx`,
+    `src/features/dashboard/components/{GoalDrawer,DashboardPage}.tsx`
+
+- [ ] **E4: Homepage swap and `blogsData.ts` removal**
+  - Acceptance: the articles column reads `loadAllPosts()`; the three placeholder entries
+    become real `.md` files with `status: planned`; `BlogStatus` type relocated;
+    `blogsData.ts` deleted with no remaining imports.
+  - Verify: `grep -r blogsData src/` returns nothing. `pnpm typecheck`. Homepage column looks
+    unchanged but now links to real posts; planned cards remain non-clickable.
+  - Files: `src/features/dashboard/components/DashboardPage.tsx`, `content/blog/*.md`,
+    **deletes** `src/features/dashboard/data/blogsData.ts`
+
+- [ ] **E5: Navigation tab**
+  - Acceptance: a `blog.md` tab sits between `home.tsx` and `resume.md`, active for
+    `/blog` and `/blog/*`.
+  - Verify: `pnpm dev` — active state correct on both index and post pages.
+  - Files: `src/components/common/EditorTabsNav.tsx`
+
+---
+
+## Track F: Verification
+
+- [ ] **F1: Accessibility pass**
+  - Acceptance: correct heading hierarchy (one `<h1>`, body starts at `<h2>`); heading anchors
+    have accessible names; code blocks meet AA contrast in both themes; post cards are a
+    single link with a discernible name; `planned` cards not focusable.
+  - Verify: keyboard-only navigation of `/blog` and a post; contrast checked on code blocks.
+  - Files: as needed
+
+- [ ] **F2: Full checklist**
+  - Acceptance: all 15+ success criteria in the spec confirmed.
+  - Verify: work the spec's manual checklist end to end against `pnpm build && pnpm start`.
+  - Files: none — update this file's status line and record anything outstanding.
+
+---
+
+## ⚠️ Noticed but not touching — pre-existing, out of scope
+
+Surfaced by `dotnet restore` during A0. Both predate this feature and are unrelated to it,
+so they are recorded rather than fixed:
+
+- **`SQLitePCLRaw.lib.e_sqlite3` 2.1.11 — known high-severity vulnerability**
+  ([GHSA-2m69-gcr7-jv3q](https://github.com/advisories/GHSA-2m69-gcr7-jv3q)). Transitive via
+  `Microsoft.EntityFrameworkCore.Sqlite`.
+- **`Microsoft.OpenApi` 2.0.0 — known high-severity vulnerability**
+  ([GHSA-v5pm-xwqc-g5wc](https://github.com/advisories/GHSA-v5pm-xwqc-g5wc)). Transitive via
+  `Microsoft.AspNetCore.OpenApi`.
+
+Both emit `NU1903` warnings on every build and will now also appear on every `dotnet test`
+run. Worth a separate dependency-bump task — say the word and I'll raise one.
+
+Also noted: `api.csproj` references `Microsoft.EntityFrameworkCore.Cosmos`, which nothing in
+the codebase uses. Unrelated to this work.
+
+## 🔵 Human contribution point (B2)
+
+The frontmatter Zod schema is where the strictness trade-offs live, and they're judgement
+calls rather than defaults:
+
+- Should unknown frontmatter keys be **rejected** (`.strict()`, catches typos like `tag:` for
+  `tags:`) or **ignored** (lenient, allows future fields without a code change)?
+- Is a 200-char `description` ceiling right? Google truncates around 155–160, but the same
+  field is the homepage card excerpt.
+- Should `date` in the future be rejected, or allowed for scheduled-ish posts?
+
+A `TODO(human)` will be placed in `frontmatter.ts` when B2 is reached.
