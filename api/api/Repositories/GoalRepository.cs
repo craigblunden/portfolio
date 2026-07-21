@@ -24,4 +24,7 @@ public class GoalRepository : IGoalRepository
     }
 
     public async Task<int> GetTotalCountAsync() => await _context.Goals.CountAsync();
+
+    public async Task<bool> SlugExistsAsync(string slug) =>
+        await _context.Goals.AsNoTracking().AnyAsync(g => g.Slug == slug);
 }

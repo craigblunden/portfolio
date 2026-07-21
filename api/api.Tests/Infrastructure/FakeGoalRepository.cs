@@ -20,4 +20,7 @@ public class FakeGoalRepository : IGoalRepository
     }
 
     public Task<int> GetTotalCountAsync() => Task.FromResult(Goals.Count);
+
+    public Task<bool> SlugExistsAsync(string slug) =>
+        Task.FromResult(Goals.Any(g => g.Slug == slug));
 }
