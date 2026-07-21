@@ -6,7 +6,7 @@ import {
   goals as goalFixtures,
 } from "@/features/dashboard/data/dashboardData";
 import { QueryClient } from "@tanstack/react-query";
-import { Check, Clock, MoreHorizontal, Target } from "lucide-react";
+import { Check, Clock, Crosshair, MoreHorizontal, Target } from "lucide-react";
 import { DashboardSection } from "./DashboardSection";
 import { GoalDrawer } from "./GoalDrawer";
 import { getGoals, PagedGoalsResponse } from "@/features/goals/api/goals";
@@ -57,8 +57,8 @@ export async function DashboardPage({
             </div>
           ) : null}
 
-          <div className="mb-7 flex min-h-90 flex-col">
-            <div className="relative min-h-50 flex-1 overflow-hidden rounded-xl border border-border bg-card bg-cover bg-center bg-no-repeat">
+          <section className="mb-7 grid gap-5 sm:grid-cols-[260px_1fr] sm:items-stretch">
+            <div className="relative min-h-50 overflow-hidden rounded-xl border border-border bg-card">
               <Image
                 className="absolute inset-0 h-full w-full object-cover"
                 src="/imgs/craig.png"
@@ -80,7 +80,7 @@ export async function DashboardPage({
               </span>
             </div>
 
-            <div className="mt-4">
+            <div className="flex flex-col justify-center">
               <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-green">
                 open to work / building in public
               </p>
@@ -89,12 +89,24 @@ export async function DashboardPage({
                 <span className="text-primary">.</span>
               </h1>
               <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-                Recently made redundant, I am using this site as a live resume,
-                blog, and accountability dashboard while I look for the right
-                senior engineering role starting mid November.
+                This site is my live resume and accountability dashboard: the
+                goal I&apos;m working towards, the projects I&apos;m building,
+                and what I&apos;m reading along the way.
               </p>
+
+              <div className="mt-5 flex flex-wrap items-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm">
+                <Crosshair className="size-4 shrink-0 text-primary" />
+                <span className="font-semibold text-foreground">target:</span>
+                <span className="text-secondary-foreground">
+                  senior engineering role
+                </span>
+                <span className="text-faint">·</span>
+                <span className="font-semibold text-primary">
+                  November 2026
+                </span>
+              </div>
             </div>
-          </div>
+          </section>
 
           <DashboardSection title="six_month_goals" count={goals.length}>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
