@@ -176,3 +176,10 @@ app.UseAuthorization();
 app.MapControllers();
 
 await app.RunAsync();
+
+/// <summary>
+/// Top-level statements generate an internal Program class, which
+/// WebApplicationFactory cannot reach. Exposing it publicly is the documented way to
+/// make the host testable.
+/// </summary>
+public partial class Program { }
