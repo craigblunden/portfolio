@@ -24,7 +24,7 @@ import {
 
 export function ResumePage() {
   return (
-    <div className="min-h-screen bg-[#0a0d12] px-4 py-8 font-mono text-[#e9eef5] sm:px-8">
+    <div className="min-h-screen bg-background px-4 py-8 font-mono text-foreground sm:px-8">
       <div className="mx-auto max-w-5xl space-y-10">
         <Header />
         <HeroRoleCard role={heroRole} />
@@ -40,15 +40,15 @@ export function ResumePage() {
 function Header() {
   return (
     <header className="space-y-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#57a773]">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-green">
         // resume
       </p>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tighter sm:text-4xl">
-            Craig Blunden<span className="text-[#f0805c]">.</span>
+            Craig Blunden<span className="text-primary">.</span>
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-[#8b97a7]">
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Full-stack engineer with 13+ years shipping product across web,
             mobile and backend. Currently at Repeat.gg (Sony) — a big fan of
             TypeScript, React and cleanly-designed systems.
@@ -62,7 +62,7 @@ function Header() {
 
 function ContactRow() {
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-[#8b97a7]">
+    <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
       <ContactLink
         icon={Mail}
         label="craig.blunden89@gmail.com"
@@ -95,7 +95,7 @@ function ContactLink({
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-1.5 rounded-md border border-[#232b36] bg-[#151a22] px-2.5 py-1.5 transition hover:border-[#f0805c]/50 hover:text-[#e9eef5]"
+      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary px-2.5 py-1.5 transition hover:border-primary/50 hover:text-foreground"
       target={href.startsWith("http") ? "_blank" : undefined}
       rel={href.startsWith("http") ? "noreferrer" : undefined}
     >
@@ -109,28 +109,28 @@ function HeroRoleCard({ role }: { role: Role }) {
   const primaryAchievements = role.primaryAchievements ?? [];
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-[#f0805c]/30 bg-linear-to-br from-[#1a1410] via-[#151a22] to-[#0e1218] p-6 shadow-[0_0_60px_-30px_rgba(240,128,92,0.35)] sm:p-8">
+    <section className="relative overflow-hidden rounded-2xl border border-primary/30 bg-linear-to-br from-[#1a1410] via-secondary to-card p-6 shadow-[0_0_60px_-30px_rgba(240,128,92,0.35)] sm:p-8">
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-[#f0805c]/10 blur-3xl"
+        className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/10 blur-3xl"
       />
       <div className="relative space-y-6">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f0805c]/40 bg-[#f0805c]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#f0805c]">
-            <Star className="size-3 fill-[#f0805c]" />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
+            <Star className="size-3 fill-primary" />
             current role
           </span>
-          <span className="text-[11px] text-[#8b97a7]">{role.period}</span>
+          <span className="text-[11px] text-muted-foreground">{role.period}</span>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
               {role.title}{" "}
-              <span className="text-[#f0805c]">@ {role.company}</span>
+              <span className="text-primary">@ {role.company}</span>
             </h2>
             {role.location ? (
-              <p className="mt-1 inline-flex items-center gap-1.5 text-[12px] text-[#8b97a7]">
+              <p className="mt-1 inline-flex items-center gap-1.5 text-[12px] text-muted-foreground">
                 <MapPin className="size-3.5" />
                 {role.location}
               </p>
@@ -141,7 +141,7 @@ function HeroRoleCard({ role }: { role: Role }) {
               href={role.link.href}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-fit items-center gap-1 rounded-md border border-[#232b36] bg-[#151a22] px-3 py-1.5 text-[12px] text-[#e9eef5] transition hover:border-[#f0805c]/50"
+              className="inline-flex h-fit items-center gap-1 rounded-md border border-border bg-secondary px-3 py-1.5 text-[12px] text-foreground transition hover:border-primary/50"
             >
               {role.link.label}
               <ArrowUpRight className="size-3.5" />
@@ -149,7 +149,7 @@ function HeroRoleCard({ role }: { role: Role }) {
           ) : null}
         </div>
 
-        <p className="max-w-3xl text-sm leading-relaxed text-[#c9d2df]">
+        <p className="max-w-3xl text-sm leading-relaxed text-secondary-foreground">
           {role.summary}
         </p>
 
@@ -157,22 +157,22 @@ function HeroRoleCard({ role }: { role: Role }) {
           {role.highlights.map(({ icon: Icon, text }) => (
             <li
               key={text}
-              className="flex items-start gap-2 rounded-lg border border-[#232b36]/60 bg-[#0e1218]/80 p-3 text-sm leading-relaxed text-[#c9d2df]"
+              className="flex items-start gap-2 rounded-lg border border-border/60 bg-card/80 p-3 text-sm leading-relaxed text-secondary-foreground"
             >
-              <Icon className="mt-0.5 size-3.5 shrink-0 text-[#f0805c]" />
+              <Icon className="mt-0.5 size-3.5 shrink-0 text-primary" />
               <span>{text}</span>
             </li>
           ))}
         </ul>
 
         {primaryAchievements.length > 0 ? (
-          <div className="space-y-3 rounded-xl border border-[#f0805c]/20 bg-[#0e1218]/60 p-4">
+          <div className="space-y-3 rounded-xl border border-primary/20 bg-card/60 p-4">
             <div className="flex items-center gap-2">
-              <Award className="size-4 text-[#f0805c]" />
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#e9eef5]">
+              <Award className="size-4 text-primary" />
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground">
                 primary achievements
               </h3>
-              <span className="text-[11px] text-[#404a59]">
+              <span className="text-[11px] text-faint">
                 [{primaryAchievements.length}]
               </span>
             </div>
@@ -181,12 +181,12 @@ function HeroRoleCard({ role }: { role: Role }) {
                 ({ icon: Icon, text }: HighlightItem) => (
                   <li
                     key={text}
-                    className="flex items-start gap-3 rounded-lg border border-[#232b36]/60 bg-[#151a22]/60 p-3"
+                    className="flex items-start gap-3 rounded-lg border border-border/60 bg-secondary/60 p-3"
                   >
-                    <span className="grid size-7 shrink-0 place-items-center rounded-md border border-[#f0805c]/30 bg-[#f0805c]/10 text-[#f0805c]">
+                    <span className="grid size-7 shrink-0 place-items-center rounded-md border border-primary/30 bg-primary/10 text-primary">
                       <Icon className="size-3.5" />
                     </span>
-                    <span className="text-sm leading-relaxed text-[#c9d2df]">
+                    <span className="text-sm leading-relaxed text-secondary-foreground">
                       {text}
                     </span>
                   </li>
@@ -208,15 +208,15 @@ function HighlightStrip() {
       {highlights.map((h) => (
         <div
           key={h.label}
-          className="rounded-xl border border-[#232b36] bg-[#0e1218] p-4"
+          className="rounded-xl border border-border bg-card p-4"
         >
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#57a773]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent-green">
             // {h.label}
           </p>
-          <p className="mt-2 text-lg font-extrabold tracking-tight text-[#e9eef5]">
+          <p className="mt-2 text-lg font-extrabold tracking-tight text-foreground">
             {h.value}
           </p>
-          <p className="text-[11px] text-[#8b97a7]">{h.note}</p>
+          <p className="text-[11px] text-muted-foreground">{h.note}</p>
         </div>
       ))}
     </section>
@@ -231,10 +231,10 @@ function ExperienceSection({ roles }: { roles: Role[] }) {
         label="experience"
         count={roles.length}
       />
-      <ol className="relative space-y-4 border-l border-dashed border-[#232b36] pl-5">
+      <ol className="relative space-y-4 border-l border-dashed border-border pl-5">
         {roles.map((role) => (
           <li key={`${role.company}-${role.period}`} className="relative">
-            <span className="absolute -left-6.75 top-4 size-3 rounded-full border-2 border-[#0a0d12] bg-[#404a59]" />
+            <span className="absolute -left-6.75 top-4 size-3 rounded-full border-2 border-background bg-faint" />
             <RoleCard role={role} />
           </li>
         ))}
@@ -245,20 +245,20 @@ function ExperienceSection({ roles }: { roles: Role[] }) {
 
 function RoleCard({ role }: { role: Role }) {
   return (
-    <article className="rounded-xl border border-[#232b36] bg-[#0e1218] p-5 transition hover:border-[#f0805c]/30">
+    <article className="rounded-xl border border-border bg-card p-5 transition hover:border-primary/30">
       <header className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
         <div>
-          <h3 className="text-lg font-bold tracking-tight text-[#e9eef5]">
+          <h3 className="text-lg font-bold tracking-tight text-foreground">
             {role.company}
           </h3>
-          <p className="text-[13px] text-[#8b97a7]">{role.title}</p>
+          <p className="text-[13px] text-muted-foreground">{role.title}</p>
         </div>
-        <span className="text-[11px] uppercase tracking-[0.12em] text-[#57a773]">
+        <span className="text-[11px] uppercase tracking-[0.12em] text-accent-green">
           {role.period}
         </span>
       </header>
 
-      <p className="mt-3 text-sm leading-relaxed text-[#c9d2df]">
+      <p className="mt-3 text-sm leading-relaxed text-secondary-foreground">
         {role.summary}
       </p>
 
@@ -266,9 +266,9 @@ function RoleCard({ role }: { role: Role }) {
         {role.highlights.map(({ icon: Icon, text }) => (
           <li
             key={text}
-            className="flex items-start gap-2 text-sm leading-relaxed text-[#c9d2df]"
+            className="flex items-start gap-2 text-sm leading-relaxed text-secondary-foreground"
           >
-            <Icon className="mt-0.5 size-3.5 shrink-0 text-[#f0805c]" />
+            <Icon className="mt-0.5 size-3.5 shrink-0 text-primary" />
             <span>{text}</span>
           </li>
         ))}
@@ -293,8 +293,8 @@ function StackList({
           key={item}
           className={
             tone === "hero"
-              ? "rounded-md border border-[#f0805c]/25 bg-[#f0805c]/5 px-2 py-0.5 text-sm text-[#f0805c]"
-              : "rounded-md border border-[#232b36] bg-[#151a22] px-2 py-0.5 text-sm text-[#8b97a7]"
+              ? "rounded-md border border-primary/25 bg-primary/5 px-2 py-0.5 text-sm text-primary"
+              : "rounded-md border border-border bg-secondary px-2 py-0.5 text-sm text-muted-foreground"
           }
         >
           {item}
@@ -312,16 +312,16 @@ function SkillsSection() {
         {skills.map((group) => (
           <div
             key={group.label}
-            className="rounded-xl border border-[#232b36] bg-[#0e1218] p-4"
+            className="rounded-xl border border-border bg-card p-4"
           >
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#57a773]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent-green">
               // {group.label}
             </p>
             <ul className="mt-3 flex flex-wrap gap-1.5">
               {group.items.map((item) => (
                 <li
                   key={item}
-                  className="rounded-md border border-[#232b36] bg-[#151a22] px-2 py-0.5 text-sm text-[#c9d2df]"
+                  className="rounded-md border border-border bg-secondary px-2 py-0.5 text-sm text-secondary-foreground"
                 >
                   {item}
                 </li>
@@ -345,12 +345,12 @@ function SectionHeading({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <Icon className="size-4 text-[#f0805c]" />
-      <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e9eef5]">
+      <Icon className="size-4 text-primary" />
+      <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-foreground">
         {label}
       </h2>
       {typeof count === "number" ? (
-        <span className="text-[11px] text-[#404a59]">[{count}]</span>
+        <span className="text-[11px] text-faint">[{count}]</span>
       ) : null}
     </div>
   );
@@ -358,21 +358,21 @@ function SectionHeading({
 
 function ValuesFooter() {
   return (
-    <section className="rounded-xl border border-[#232b36] bg-[#0e1218] p-5">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#57a773]">
+    <section className="rounded-xl border border-border bg-card p-5">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent-green">
         // values
       </p>
       <ul className="mt-3 grid gap-2 sm:grid-cols-3">
         {values.map((value) => (
           <li
             key={value}
-            className="rounded-lg border border-[#232b36]/60 bg-[#151a22] p-3 text-sm leading-relaxed text-[#c9d2df]"
+            className="rounded-lg border border-border/60 bg-secondary p-3 text-sm leading-relaxed text-secondary-foreground"
           >
             {value}
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-sm text-[#8b97a7]">
+      <p className="mt-4 text-sm text-muted-foreground">
         Available for interesting roles — reach out any time.
       </p>
     </section>
