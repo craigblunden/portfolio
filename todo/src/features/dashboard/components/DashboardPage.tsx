@@ -18,18 +18,21 @@ import {
 } from "lucide-react";
 import { projects } from "@/features/dashboard/data/projectsData";
 import { books, type BookStatus } from "@/features/dashboard/data/booksData";
-
-const bookStatusStyles: Record<BookStatus, string> = {
-  reading: "bg-primary/15 text-primary",
-  finished: "bg-success/15 text-success",
-  queued: "bg-secondary text-muted-foreground",
-};
 import { DashboardSection } from "./DashboardSection";
 import { GoalDrawer } from "./GoalDrawer";
 import { getGoals, PagedGoalsResponse } from "@/features/goals/api/goals";
 import { getGoalProgress } from "@/features/goals/lib/goalProgress";
 import { AdminSessionButton } from "@/features/auth/components/AdminSessionButton";
 import { getAdminSession } from "@/features/auth/api/session";
+
+const bookStatusStyles: Record<BookStatus, string> = {
+  reading: "bg-primary/15 text-primary",
+  finished: "bg-success/15 text-success",
+  queued: "bg-secondary text-muted-foreground",
+};
+
+/* Recently-completed stays a small proof-of-momentum strip, never a feed. */
+const COMPLETED_DISPLAY_CAP = 4;
 
 type DashboardPageProps = {
   authDenied?: boolean;
@@ -59,6 +62,7 @@ export async function DashboardPage({
     ? [...goalsData.payload, ...goalFixtures]
     : goalFixtures;
 
+  const recentlyCompleted = completedTasks.slice(0, COMPLETED_DISPLAY_CAP);
   const [northStar, ...otherGoals] = goals;
   const northStarProgress = northStar
     ? getGoalProgress(northStar)
@@ -282,10 +286,10 @@ export async function DashboardPage({
 
           <DashboardSection
             title="recently_completed"
-            count={completedTasks.length}
+            count={recentlyCompleted.length}
           >
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {completedTasks.map((task) => (
+              {recentlyCompleted.map((task) => (
                 <Card
                   key={task.title}
                   size="sm"
