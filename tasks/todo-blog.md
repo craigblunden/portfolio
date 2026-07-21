@@ -2,9 +2,9 @@
 
 Spec: `tasks/spec-blog.md` · Plan: `tasks/plan-blog.md`
 
-> **Status (2026-07-21):** **Track A complete** on `feature/blog` (`f0b5792..a91ead9`).
-> Backend suite green at **47 tests**. Next: Track B (frontend markdown pipeline), which
-> has no dependency on Track A until E1.
+> **Status (2026-07-21):** **Feature complete** on `feature/blog`. Backend 47 tests,
+> frontend 98 tests, typecheck / lint / production build all green. Remaining: manual
+> browser review, and writing real content.
 
 Frontend commands run from `todo/`, backend from `api/api/` (tests from `api/`).
 Every frontend task must leave `pnpm lint`, `pnpm typecheck`, `pnpm test --run` green;
@@ -113,14 +113,14 @@ every backend task must leave `dotnet test` green.
 
 ## Track B: Markdown pipeline
 
-- [ ] **B1: Add dependencies and the first real post**
+- [x] **B1: Add dependencies and the first real post**
   - Acceptance: the nine approved packages installed; `todo/content/blog/` exists with one
     genuine article (not lorem ipsum) containing headings, a code fence, a list, and a link,
     with complete valid frontmatter.
   - Verify: `pnpm install` clean; `pnpm build` still passes with the content unused.
   - Files: `package.json`, `content/blog/<slug>.md`
 
-- [ ] **B2: Frontmatter, slug, and reading-time libraries**
+- [x] **B2: Frontmatter, slug, and reading-time libraries**
   - Acceptance: `slugFromFilename` rejects non-`.md` and non-kebab names; `getReadingTime`
     excludes code fences from word count; `parseFrontmatter` validates the full schema with
     Zod and throws errors naming file *and* field.
@@ -128,13 +128,13 @@ every backend task must leave `dotnet test` green.
   - Files: `src/features/blog/lib/{slug,readingTime,frontmatter}.ts` + `__tests__/`
   - 🔵 **Human contribution point** — the frontmatter Zod schema. See note at the bottom.
 
-- [ ] **B3: Markdown rendering pipeline**
+- [x] **B3: Markdown rendering pipeline**
   - Acceptance: `renderMarkdown(md)` returns an HTML string via unified — GFM tables, task
     lists, heading ids, autolinked headings, and Shiki-highlighted code fences all working.
   - Verify: temporary script or test rendering the B1 post; inspect the HTML by eye.
   - Files: `src/features/blog/lib/markdown.ts`
 
-- [ ] **B4: Post loader**
+- [x] **B4: Post loader**
   - Acceptance: `loadAllPosts()` returns sorted metadata (newest first, deterministic ties);
     `loadPostBySlug()` returns one post with rendered HTML; `planned` never routable;
     `draft` visible only when `NODE_ENV=development`.
@@ -145,7 +145,7 @@ every backend task must leave `dotnet test` green.
 
 ## Track C: Routes
 
-- [ ] **C1: Single post route**
+- [x] **C1: Single post route**
   - Acceptance: `/blog/<slug>` renders title, date, reading time, tags, and body with prose
     styling built on existing design tokens. `generateStaticParams` covers routable posts;
     `dynamicParams = false`; unknown slug 404s.
@@ -153,7 +153,7 @@ every backend task must leave `dotnet test` green.
   - Files: `src/app/blog/[slug]/page.tsx`, `src/app/blog/[slug]/not-found.tsx`,
     `src/features/blog/components/{PostBody,PostMeta}.tsx`
 
-- [ ] **C2: BUILD GATE — verify standalone output** ⚠⚠
+- [x] **C2: BUILD GATE — verify standalone output** ⚠⚠
   - Acceptance: a production build serves the post correctly.
   - Verify: `pnpm build && pnpm start`, load `/blog/<slug>`. Confirm the post HTML is
     generated at build time, not read at request time.
@@ -161,7 +161,7 @@ every backend task must leave `dotnet test` green.
     `outputFileTracingIncludes` change — it modifies `next.config.ts`, which is ask-first.
   - Files: none (verification only)
 
-- [ ] **C3: Blog index**
+- [x] **C3: Blog index**
   - Acceptance: `/blog` lists routable posts newest-first with title, description, date,
     reading time, tags. `planned` posts excluded. Empty state handled.
   - Verify: `pnpm dev` → `/blog`. Add a second post, confirm ordering. Set one to `draft`,
@@ -172,20 +172,20 @@ every backend task must leave `dotnet test` green.
 
 ## Track D: SEO
 
-- [ ] **D1: Site URL and root metadata**
+- [x] **D1: Site URL and root metadata**
   - Acceptance: `NEXT_PUBLIC_SITE_URL` read into `metadataBase`, defaulting to
     `http://localhost:3000`. Root layout's placeholder `"Create Next App"` metadata replaced
     with real title/description. Domain hardcoded nowhere.
   - Verify: view source on `/` — correct title, absolute OG URLs.
   - Files: `src/app/layout.tsx`, `.env.local`, `todo/README.md`
 
-- [ ] **D2: Per-post metadata and structured data**
+- [x] **D2: Per-post metadata and structured data**
   - Acceptance: `generateMetadata` emits title, description, canonical, OG (`type: article`,
     `publishedTime`, `modifiedTime`), and Twitter card. Valid `BlogPosting` JSON-LD.
   - Verify: view source on a post; paste JSON-LD into a structured-data validator.
   - Files: `src/app/blog/[slug]/page.tsx`
 
-- [ ] **D3: Sitemap and robots**
+- [x] **D3: Sitemap and robots**
   - Acceptance: `sitemap.xml` lists `/`, `/resume`, `/blog`, and published posts only, using
     `updated ?? date` as `lastModified`. `robots.txt` allows all, disallows `/admin`, points
     at the sitemap.
@@ -199,7 +199,7 @@ every backend task must leave `dotnet test` green.
 
 *Strictly sequential. E1 needs A3 and B4 complete.*
 
-- [ ] **E1: Slugs into frontend types**
+- [x] **E1: Slugs into frontend types**
   - Acceptance: `Goal` type gains `slug: string`; fixture goals in `dashboardData.ts` get
     slugs matching the migrated DB rows; `Project` type gains a required `slug`, with values
     added to both existing projects.
@@ -207,7 +207,7 @@ every backend task must leave `dotnet test` green.
   - Files: `src/features/goals/api/goals.ts`, `src/features/dashboard/data/dashboardData.ts`,
     `src/features/dashboard/data/projectsData.ts`
 
-- [ ] **E2: Attachment resolution**
+- [x] **E2: Attachment resolution**
   - Acceptance: `postsForGoal(slug)` / `postsForProject(slug)` group correctly; unknown
     project slug throws; unknown goal slug warns; malformed slug throws; API unreachable
     skips goal validation without failing.
@@ -215,7 +215,7 @@ every backend task must leave `dotnet test` green.
     it must succeed.
   - Files: `src/features/blog/lib/attachments.ts` + `__tests__/attachments.test.ts`
 
-- [ ] **E3: Surface attachments on goals and projects**
+- [x] **E3: Surface attachments on goals and projects**
   - Acceptance: attachment is optional in both directions and **absence is the common case**.
     A goal or project with articles shows a lightweight "read more" affordance listing them;
     one without renders **byte-identically to today** — no heading, no empty state, no
@@ -226,7 +226,7 @@ every backend task must leave `dotnet test` green.
   - Files: `src/features/blog/components/AttachedArticles.tsx`,
     `src/features/dashboard/components/{GoalDrawer,DashboardPage}.tsx`
 
-- [ ] **E4: Homepage swap and `blogsData.ts` removal**
+- [x] **E4: Homepage swap and `blogsData.ts` removal**
   - Acceptance: the articles column reads `loadAllPosts()`; the three placeholder entries
     become real `.md` files with `status: planned`; `BlogStatus` type relocated;
     `blogsData.ts` deleted with no remaining imports.
@@ -235,7 +235,7 @@ every backend task must leave `dotnet test` green.
   - Files: `src/features/dashboard/components/DashboardPage.tsx`, `content/blog/*.md`,
     **deletes** `src/features/dashboard/data/blogsData.ts`
 
-- [ ] **E5: Navigation tab**
+- [x] **E5: Navigation tab**
   - Acceptance: a `blog.md` tab sits between `home.tsx` and `resume.md`, active for
     `/blog` and `/blog/*`.
   - Verify: `pnpm dev` — active state correct on both index and post pages.
@@ -285,6 +285,17 @@ behind a Next.js proxy, a 302 to accounts.google.com is a worse contract than a 
 proxy cannot distinguish "not logged in" from a genuine redirect. Fixable by giving the
 `AdminOnly` policy an explicit authentication scheme. Out of scope here; worth its own task.
 
+**No `packageManager` field pins pnpm, and the versions disagree.** `todo/pnpm-lock.yaml` is
+`lockfileVersion: '9.0'` (pnpm 9/10), but the pnpm on PATH here is **8.2.0**, which writes
+`lockfileVersion: '6.0'`. Running `pnpm add` therefore silently **rewrote and downgraded the
+entire lockfile**, dropping `@tailwindcss/oxide-win32-x64-msvc` and breaking `pnpm build`
+with an error pointing at a native binding — three layers from the real cause.
+
+Recovery: restore the lockfile from git, delete `node_modules`, reinstall with
+`corepack pnpm@10.15.0`. **Fix worth making:** add `"packageManager": "pnpm@10.15.0"` to
+`todo/package.json` so corepack pins it automatically and this cannot recur. Not done here —
+it is a repo-wide toolchain change, not a blog-feature change.
+
 **`api/dotnet-tools.json` is in the wrong place.** The manifest belongs at
 `api/.config/dotnet-tools.json`; where it currently sits, `dotnet tool restore` will not
 find it, so the pinned csharpier 1.2.6 is not actually restorable by a fresh clone. It only
@@ -302,3 +313,52 @@ calls rather than defaults:
 - Should `date` in the future be rejected, or allowed for scheduled-ish posts?
 
 A `TODO(human)` will be placed in `frontmatter.ts` when B2 is reached.
+
+---
+
+## Completion notes (2026-07-21)
+
+**Verified against a production build and server, not just unit tests:**
+
+- Post prerendered to `.next/server/app/blog/<slug>.html` with syntax highlighting intact.
+- Next's tracer copies `content/` into `.next/standalone` — the plan's top risk did not
+  materialise. This matters more than expected: the homepage is a dynamic route, so it
+  reads posts at request time rather than build time, and would have failed without it.
+- `/blog` 200, post 200, unknown slug 404, draft URL 404 in production.
+- `sitemap.xml` lists published posts only; no draft or planned leakage.
+- Post head carries title, description, canonical, OpenGraph article tags and valid
+  `BlogPosting` JSON-LD.
+- With only draft and planned content, `/blog` renders its empty state — a real production
+  state today, since the one written post is still a draft.
+- Frontend builds cleanly with the API stopped, so goal-attachment resolution degrades to a
+  warning as designed.
+
+**Deviations from plan:**
+
+- **Shiki was a tenth dependency.** It is a required peer of `rehype-pretty-code` that pnpm
+  does not install automatically.
+- **E5 (nav tab) landed with C3** rather than at the end; it is two lines and belonged with
+  the index it points at.
+- **A dedicated `formatDate` helper** was added, not in the plan. `date-fns/parseISO` is
+  needed because `new Date("2026-07-21")` parses as UTC and renders the previous day in
+  negative-offset timezones.
+
+**Bugs found and fixed during the work:**
+
+- **YAML parses unquoted dates into `Date` objects**, not strings. Caught only because the
+  loader tests read real files rather than hand-built objects. Frontmatter now normalises
+  both forms to `YYYY-MM-DD`.
+- **An XML comment in `api.csproj` contained `--`**, which is illegal, breaking every build.
+  Committed unverified because the file was edited after the last test run.
+- **`pnpm add` under pnpm 8 downgraded the lockfile** from v9 to v6 and dropped a native
+  binding. Fixed by pinning `packageManager`.
+
+**Still outstanding:**
+
+1. **Manual browser review.** No browser tooling was available; every check was via curl and
+   generated HTML. Layout, spacing and code-block contrast want a human eye.
+2. **Real content.** The one written post is a draft, so production currently has zero
+   published articles and `/blog` shows its empty state.
+3. **`corepack enable`** has not been run — bare `pnpm` is still 8.2.0 on this machine, so
+   the lockfile downgrade can recur outside corepack.
+4. Deferred as specced: tag pages, RSS, per-post OG images, homepage post cap.
