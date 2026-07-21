@@ -189,3 +189,100 @@ h2 {
   @apply text-2xl font-bold;
   margin-bottom: 1rem;
 }
+
+/* Post body: hand-rolled prose styles on the existing tokens, rather than
+   @tailwindcss/typography whose defaults fight the terminal aesthetic. */
+.post-body {
+  @apply text-[15px] leading-7 text-secondary-foreground;
+}
+
+.post-body > * + * {
+  margin-top: 1.1rem;
+}
+
+.post-body h2 {
+  @apply mt-9 mb-0 text-lg font-bold tracking-[-0.02em] text-foreground;
+}
+
+.post-body h3 {
+  @apply mt-7 mb-0 text-base font-semibold tracking-[-0.02em] text-foreground;
+}
+
+.post-body a {
+  @apply text-primary underline underline-offset-2;
+}
+
+.post-body a:hover {
+  @apply text-primary/80;
+}
+
+.post-body strong {
+  @apply font-semibold text-foreground;
+}
+
+.post-body ul,
+.post-body ol {
+  @apply space-y-1.5 pl-5;
+}
+
+.post-body ul {
+  @apply list-disc;
+}
+
+.post-body ol {
+  @apply list-decimal;
+}
+
+.post-body li::marker {
+  @apply text-subtle;
+}
+
+.post-body blockquote {
+  @apply border-l-2 border-primary/40 pl-4 text-muted-foreground italic;
+}
+
+/* Inline code only — fenced blocks are styled by the pre rule below. */
+.post-body :not(pre) > code {
+  @apply rounded border border-border bg-secondary px-1.5 py-0.5 font-mono text-[13px] text-foreground;
+}
+
+.post-body pre {
+  @apply overflow-x-auto rounded-lg border border-border bg-surface p-4 font-mono text-[13px] leading-6;
+}
+
+.post-body pre code {
+  @apply bg-transparent p-0;
+}
+
+.post-body table {
+  @apply block w-full overflow-x-auto border-collapse text-sm;
+}
+
+.post-body th,
+.post-body td {
+  @apply border border-border px-3 py-2 text-left;
+}
+
+.post-body th {
+  @apply bg-secondary font-semibold text-foreground;
+}
+
+.post-body hr {
+  @apply border-border;
+}
+
+.post-body img {
+  @apply max-w-full rounded-lg border border-border;
+}
+
+/* Heading anchors stay hidden until the heading is hovered or the link is focused,
+   so they never obstruct keyboard users. */
+.post-body .heading-anchor {
+  @apply ml-2 text-subtle no-underline opacity-0 transition-opacity;
+}
+
+.post-body h2:hover .heading-anchor,
+.post-body h3:hover .heading-anchor,
+.post-body .heading-anchor:focus-visible {
+  @apply opacity-100;
+}
