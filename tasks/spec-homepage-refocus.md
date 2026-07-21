@@ -173,6 +173,22 @@ export const books: Book[] = [
 - [ ] All commented-out dead sections removed from `DashboardPage.tsx`.
 - [ ] Typecheck, lint, and existing tests pass.
 
+## Layout Revision v2 (2026-07-21, after first implementation review)
+
+The sectioned single-column layout didn't land. Revised direction:
+
+- The homepage becomes a **three-column kanban-style board** — `goals_and_todos`,
+  `projects`, `books` — inside explicit **VS Code chrome**: an editor tab strip at the
+  top (`home.tsx` active, `resume.md` linking out), the board as the editor surface,
+  and a VS Code-style status bar at the bottom (branch, diagnostics, target date,
+  open-to-work). Columns stack vertically on mobile.
+- Hero shrinks to a compact README-style strip above the board (small portrait,
+  headline, one-liner, November target chip).
+- The goals column shows the north-star goal card (computed progress) with its next
+  todos inline as status rows; full todo detail stays in the drawer.
+- The public "goals" nav link is removed; `/goals` remains as the admin working board
+  (it carries the todo move/update mutations, which the read-focused homepage does not).
+
 ## Resolved Decisions (2026-07-21)
 
 1. **Books data source** — static data file in the repo. ✅

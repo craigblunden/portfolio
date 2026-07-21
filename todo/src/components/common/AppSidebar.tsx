@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { FileUser, Home, Menu, Zap } from "lucide-react";
+import { FileUser, Home, Menu } from "lucide-react";
 import Link from "next/link";
 
 type NavItem = {
@@ -22,7 +22,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: "home", icon: Home, shortcut: "1", active: true, href: "/" },
-  { label: "goals", icon: Zap, shortcut: "2", href: "/goals" },
+  // /goals remains reachable directly as the admin working board.
   // { label: "writing", icon: BookOpen, shortcut: "3" },
   // { label: "timeline", icon: Calendar, badge: "6m" },
 ];

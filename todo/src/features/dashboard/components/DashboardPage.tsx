@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import Image from "next/image";
+import Link from "next/link";
 import {
   completedTasks,
   goals as goalFixtures,
@@ -9,19 +10,25 @@ import { QueryClient } from "@tanstack/react-query";
 import {
   BookOpen,
   Check,
-  Clock,
+  Circle,
+  CircleDot,
   Code2,
   Crosshair,
-  MoreHorizontal,
+  FileCode2,
+  FileText,
+  GitBranch,
+  OctagonAlert,
   Rocket,
   Target,
+  TriangleAlert,
+  Zap,
 } from "lucide-react";
 import { projects } from "@/features/dashboard/data/projectsData";
 import { books, type BookStatus } from "@/features/dashboard/data/booksData";
-import { DashboardSection } from "./DashboardSection";
 import { GoalDrawer } from "./GoalDrawer";
 import { getGoals, PagedGoalsResponse } from "@/features/goals/api/goals";
 import { getGoalProgress } from "@/features/goals/lib/goalProgress";
+import type { Todo, TodoStatus } from "@/features/todos/api/todos";
 import { AdminSessionButton } from "@/features/auth/components/AdminSessionButton";
 import { getAdminSession } from "@/features/auth/api/session";
 
@@ -31,8 +38,16 @@ const bookStatusStyles: Record<BookStatus, string> = {
   queued: "bg-secondary text-muted-foreground",
 };
 
-/* Recently-completed stays a small proof-of-momentum strip, never a feed. */
-const COMPLETED_DISPLAY_CAP = 4;
+const todoStatusIcon: Record<TodoStatus, React.ReactNode> = {
+  Completed: <Check className="size-3.5 text-success" />,
+  InProgress: <CircleDot className="size-3.5 text-info" />,
+  Blocked: <OctagonAlert className="size-3.5 text-primary" />,
+  Backlog: <Circle className="size-3.5 text-subtle" />,
+};
+
+/* Inline todo previews per goal card; full detail lives in the drawer. */
+const TODO_PREVIEW_CAP = 4;
+const COMPLETED_DISPLAY_CAP = 3;
 
 type DashboardPageProps = {
   authDenied?: boolean;
@@ -62,270 +77,356 @@ export async function DashboardPage({
     ? [...goalsData.payload, ...goalFixtures]
     : goalFixtures;
 
-  const recentlyCompleted = completedTasks.slice(0, COMPLETED_DISPLAY_CAP);
   const [northStar, ...otherGoals] = goals;
-  const northStarProgress = northStar
-    ? getGoalProgress(northStar)
-    : { done: 0, total: 0, percent: 0 };
+  const recentlyCompleted = completedTasks.slice(0, COMPLETED_DISPLAY_CAP);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background font-mono text-foreground">
-      <section className="flex min-w-0 flex-col">
-        {isAdmin ? (
-          <header className="flex justify-end border-b border-border bg-background px-4 py-3 sm:px-5">
-            <AdminSessionButton />
-          </header>
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-background font-mono text-foreground">
+      <EditorTabs isAdmin={isAdmin} />
+
+      <div className="min-h-0 flex-1 px-4 py-5 sm:px-6">
+        {authDenied ? (
+          <div className="mb-5 rounded-xl border border-primary/35 bg-primary/10 px-4 py-3 text-sm text-primary">
+            Sign-in was rejected. Please contact this guy 👇.
+          </div>
         ) : null}
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">
-          {authDenied ? (
-            <div className="mb-5 rounded-xl border border-primary/35 bg-primary/10 px-4 py-3 text-sm text-primary">
-              Sign-in was rejected. Please contact this guy 👇.
-            </div>
-          ) : null}
+        <HeroStrip />
 
-          <section className="mb-7 grid gap-5 sm:grid-cols-[260px_1fr] sm:items-stretch">
-            <div className="relative min-h-50 overflow-hidden rounded-xl border border-border bg-card">
-              <Image
-                className="absolute inset-0 h-full w-full object-cover"
-                src="/imgs/craig.png"
-                alt="Self Portrait"
-                width={300}
-                height={200}
-                loading="eager"
-              />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(180deg, rgba(10,13,18,0.1) 0%, rgba(10,13,18,0.88) 92%)",
-                }}
-              />
-
-              <span className="absolute bottom-3 left-3 rounded-md border border-border bg-background/80 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                self portrait...
-              </span>
-            </div>
-
-            <div className="flex flex-col justify-center">
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-green">
-                open to work / building in public
-              </p>
-              <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-[-0.06em] sm:text-4xl">
-                I&apos;m tracking the next chapter
-                <span className="text-primary">.</span>
-              </h1>
-              <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-                This site is my live resume and accountability dashboard: the
-                goal I&apos;m working towards, the projects I&apos;m building,
-                and what I&apos;m reading along the way.
-              </p>
-
-              <div className="mt-5 flex flex-wrap items-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm">
-                <Crosshair className="size-4 shrink-0 text-primary" />
-                <span className="font-semibold text-foreground">target:</span>
-                <span className="text-secondary-foreground">
-                  senior engineering role
-                </span>
-                <span className="text-faint">·</span>
-                <span className="font-semibold text-primary">
-                  November 2026
-                </span>
-              </div>
-            </div>
-          </section>
-
-          {northStar ? (
-            <DashboardSection title="the_goal" count={goals.length}>
-              <GoalDrawer goal={northStar}>
-                <Card
-                  size="sm"
-                  className="cursor-pointer gap-4 rounded-xl border border-primary/30 bg-card p-5 text-left shadow-none ring-0 transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.28)]"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10">
-                      <Target className="size-5 text-primary" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-base font-bold tracking-[-0.02em] sm:text-lg">
-                        {northStar.name}
-                      </h3>
-                      <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-                        {northStar.summary}
-                      </p>
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <div className="text-2xl font-extrabold text-primary">
-                        {northStarProgress.percent}
-                        <span className="text-sm text-subtle">%</span>
-                      </div>
-                      <div className="text-[11px] text-subtle">
-                        {northStarProgress.done}/{northStarProgress.total} done
-                        · due nov 2026
-                      </div>
-                    </div>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
-                    <div
-                      className="h-full rounded-full bg-primary"
-                      style={{ width: `${northStarProgress.percent}%` }}
-                    />
-                  </div>
-                </Card>
-              </GoalDrawer>
-
-              {otherGoals.length > 0 ? (
-                <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-                  {otherGoals.map((goal) => {
-                    const progress = getGoalProgress(goal);
-                    return (
-                      <GoalDrawer key={goal.name} goal={goal}>
-                        <Card
-                          size="sm"
-                          className="cursor-pointer gap-3 rounded-xl border border-border bg-card p-4 py-4 text-left shadow-none ring-0 transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_rgba(0,0,0,0.28)]"
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="grid size-8 place-items-center rounded-lg bg-secondary">
-                              <Target className="size-4 text-primary" />
-                            </div>
-                            <div className="text-lg font-bold text-foreground">
-                              {progress.percent}
-                              <span className="text-xs text-subtle">%</span>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-sm font-semibold tracking-[-0.02em]">
-                              {goal.name}
-                            </div>
-                            <div className="mt-1 text-[11px] text-subtle">
-                              {progress.done}/{progress.total} done
-                            </div>
-                          </div>
-                        </Card>
-                      </GoalDrawer>
-                    );
-                  })}
-                </div>
-              ) : null}
-            </DashboardSection>
-          ) : null}
-
-          <DashboardSection title="projects_im_building" count={projects.length}>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {projects.map((project) => (
-                <Card
-                  key={project.name}
-                  size="sm"
-                  className="gap-4 rounded-xl border border-border bg-card p-4 py-4 shadow-none ring-0"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="grid size-9 place-items-center rounded-lg bg-secondary text-primary">
-                      <Rocket className="size-5" />
-                    </div>
-                    <Badge className="border-0 bg-info/15 font-mono text-info">
-                      {project.status}
-                    </Badge>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold tracking-[-0.02em]">
-                      {project.name}
-                    </h3>
-                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                      {project.summary}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {project.stack.map((item) => (
-                      <Badge
-                        key={item}
-                        className="border-0 bg-secondary font-mono text-muted-foreground"
-                      >
-                        <Code2 className="size-3" />
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </DashboardSection>
-
-          <DashboardSection title="books_im_reading" count={books.length}>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {books.map((book) => (
-                <Card
-                  key={book.title}
-                  size="sm"
-                  className="gap-3 rounded-xl border border-border bg-card p-4 py-4 shadow-none ring-0"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="grid size-9 place-items-center rounded-lg bg-secondary text-accent-green">
-                      <BookOpen className="size-5" />
-                    </div>
-                    <Badge
-                      className={`border-0 font-mono ${bookStatusStyles[book.status]}`}
-                    >
-                      {book.status}
-                    </Badge>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold tracking-[-0.02em]">
-                      {book.title}
-                    </h3>
-                    <p className="mt-0.5 text-sm text-subtle">{book.author}</p>
-                    {book.note ? (
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                        {book.note}
-                      </p>
-                    ) : null}
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </DashboardSection>
-
-          <DashboardSection
-            title="recently_completed"
-            count={recentlyCompleted.length}
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+          <BoardColumn
+            icon={<Zap className="size-3.5" />}
+            title="goals_and_todos"
+            count={goals.length}
           >
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {recentlyCompleted.map((task) => (
-                <Card
-                  key={task.title}
-                  size="sm"
-                  className="relative rounded-xl border border-border bg-card p-4 py-4 shadow-none ring-0"
-                >
-                  <span className="absolute inset-x-4 top-0 h-0.5 rounded-full bg-success" />
-                  <CardHeader className="p-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <Badge className="w-fit border-0 bg-success/15 font-mono text-success">
-                        <Check className="size-3" />
-                        {task.tag}
-                      </Badge>
-                      <MoreHorizontal className="size-4 text-faint" />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <h3 className="text-sm font-semibold tracking-[-0.02em]">
-                      {task.title}
-                    </h3>
-                    <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                      {task.desc}
-                    </p>
-                    <div className="mt-3 flex items-center justify-between border-t border-dashed border-border pt-3 text-[11px] text-subtle">
-                      progress log
-                      <span className="inline-flex items-center gap-1 font-semibold text-success">
-                        <Clock className="size-3" />
-                        {task.at}
+            {northStar ? (
+              <NorthStarCard goal={northStar} />
+            ) : (
+              <EmptyColumnNote>No goals yet.</EmptyColumnNote>
+            )}
+            {otherGoals.map((goal) => (
+              <SecondaryGoalCard key={goal.name} goal={goal} />
+            ))}
+
+            {recentlyCompleted.length > 0 ? (
+              <>
+                <ColumnSubheading>recently_done</ColumnSubheading>
+                {recentlyCompleted.map((task) => (
+                  <div
+                    key={task.title}
+                    className="rounded-lg border border-border bg-card p-3"
+                  >
+                    <div className="flex items-center gap-2 text-sm">
+                      <Check className="size-3.5 shrink-0 text-success" />
+                      <span className="text-secondary-foreground">
+                        {task.title}
                       </span>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </DashboardSection>
+                    <div className="mt-1 pl-5.5 text-[11px] text-subtle">
+                      {task.tag} · {task.at}
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : null}
+          </BoardColumn>
+
+          <BoardColumn
+            icon={<Rocket className="size-3.5" />}
+            title="projects"
+            count={projects.length}
+          >
+            {projects.map((project) => (
+              <Card
+                key={project.name}
+                size="sm"
+                className="gap-3 rounded-lg border border-border bg-card p-4 py-4 shadow-none ring-0"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="grid size-8 place-items-center rounded-lg bg-secondary text-primary">
+                    <Rocket className="size-4" />
+                  </div>
+                  <Badge className="border-0 bg-info/15 font-mono text-info">
+                    {project.status}
+                  </Badge>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold tracking-[-0.02em]">
+                    {project.name}
+                  </h3>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    {project.summary}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {project.stack.map((item) => (
+                    <Badge
+                      key={item}
+                      className="border-0 bg-secondary font-mono text-muted-foreground"
+                    >
+                      <Code2 className="size-3" />
+                      {item}
+                    </Badge>
+                  ))}
+                </div>
+              </Card>
+            ))}
+          </BoardColumn>
+
+          <BoardColumn
+            icon={<BookOpen className="size-3.5" />}
+            title="books"
+            count={books.length}
+          >
+            {books.map((book) => (
+              <Card
+                key={book.title}
+                size="sm"
+                className="gap-2 rounded-lg border border-border bg-card p-4 py-4 shadow-none ring-0"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="text-sm font-semibold tracking-[-0.02em]">
+                    {book.title}
+                  </h3>
+                  <Badge
+                    className={`shrink-0 border-0 font-mono ${bookStatusStyles[book.status]}`}
+                  >
+                    {book.status}
+                  </Badge>
+                </div>
+                <p className="text-sm text-subtle">{book.author}</p>
+                {book.note ? (
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    {book.note}
+                  </p>
+                ) : null}
+              </Card>
+            ))}
+          </BoardColumn>
         </div>
-      </section>
+      </div>
+
+      <StatusBar />
     </div>
+  );
+}
+
+function EditorTabs({ isAdmin }: { isAdmin: boolean }) {
+  return (
+    <div className="flex items-center border-b border-border bg-card">
+      <span className="flex items-center gap-2 border-r border-border bg-background px-4 py-2.5 text-[13px] text-foreground shadow-[inset_0_2px_0_0_var(--primary)]">
+        <FileCode2 className="size-3.5 text-primary" />
+        home.tsx
+      </span>
+      <Link
+        href="/resume"
+        className="flex items-center gap-2 border-r border-border px-4 py-2.5 text-[13px] text-muted-foreground transition hover:bg-background hover:text-foreground"
+      >
+        <FileText className="size-3.5" />
+        resume.md
+      </Link>
+      {isAdmin ? (
+        <div className="ml-auto flex items-center pr-3">
+          <AdminSessionButton />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function HeroStrip() {
+  return (
+    <section className="mb-6 flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:p-5">
+      <div className="relative size-16 shrink-0 overflow-hidden rounded-lg border border-border sm:size-20">
+        <Image
+          className="absolute inset-0 h-full w-full object-cover"
+          src="/imgs/craig.png"
+          alt="Self portrait of Craig Blunden"
+          width={80}
+          height={80}
+          loading="eager"
+        />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-green">
+          open to work / building in public
+        </p>
+        <h1 className="mb-0 mt-1 text-xl font-extrabold leading-tight tracking-[-0.04em] sm:text-2xl">
+          I&apos;m tracking the next chapter
+          <span className="text-primary">.</span>
+        </h1>
+        <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
+          Live resume and accountability dashboard: the goal I&apos;m working
+          towards, the projects I&apos;m building, and what I&apos;m reading.
+        </p>
+      </div>
+
+      <div className="flex shrink-0 items-center gap-2 rounded-lg border border-primary/25 bg-primary/5 px-3 py-2 text-sm">
+        <Crosshair className="size-4 shrink-0 text-primary" />
+        <span className="text-secondary-foreground">senior role</span>
+        <span className="text-faint">·</span>
+        <span className="font-semibold text-primary">nov 2026</span>
+      </div>
+    </section>
+  );
+}
+
+function BoardColumn({
+  icon,
+  title,
+  count,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  count: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="flex min-w-0 flex-col rounded-xl border border-border bg-surface/40 p-3">
+      <div className="mb-3 flex items-center gap-2 px-1">
+        <span className="text-accent-green">{icon}</span>
+        <h2 className="mb-0 text-sm font-semibold tracking-[-0.02em]">
+          {title}
+        </h2>
+        <span className="text-xs font-medium text-faint">[{count}]</span>
+        <span className="h-px flex-1 bg-border" />
+      </div>
+      <div className="flex flex-col gap-2.5">{children}</div>
+    </section>
+  );
+}
+
+function ColumnSubheading({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mt-2 flex items-center gap-2 px-1 text-[11px] font-semibold text-accent-green">
+      {"//"} {children}
+    </div>
+  );
+}
+
+function EmptyColumnNote({ children }: { children: React.ReactNode }) {
+  return <p className="px-1 text-sm text-subtle">{children}</p>;
+}
+
+function NorthStarCard({
+  goal,
+}: {
+  goal: Parameters<typeof getGoalProgress>[0];
+}) {
+  const progress = getGoalProgress(goal);
+  const previewTodos = (goal.todos ?? []).slice(0, TODO_PREVIEW_CAP);
+
+  return (
+    <GoalDrawer goal={goal}>
+      <Card
+        size="sm"
+        className="cursor-pointer gap-3 rounded-lg border border-primary/30 bg-card p-4 text-left shadow-none ring-0 transition hover:border-primary/50"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10">
+            <Target className="size-4 text-primary" />
+          </div>
+          <div className="text-right">
+            <span className="text-xl font-extrabold text-primary">
+              {progress.percent}
+              <span className="text-xs text-subtle">%</span>
+            </span>
+            <div className="text-[11px] text-subtle">
+              {progress.done}/{progress.total} · due nov 2026
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-bold tracking-[-0.02em]">{goal.name}</h3>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            {goal.summary}
+          </p>
+        </div>
+
+        <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
+          <div
+            className="h-full rounded-full bg-primary"
+            style={{ width: `${progress.percent}%` }}
+          />
+        </div>
+
+        {previewTodos.length > 0 ? (
+          <ul className="space-y-1.5 border-t border-dashed border-border pt-3">
+            {previewTodos.map((todo: Todo) => (
+              <li key={todo.id} className="flex items-center gap-2 text-sm">
+                <span className="shrink-0">{todoStatusIcon[todo.status]}</span>
+                <span
+                  className={
+                    todo.status === "Completed"
+                      ? "text-subtle line-through"
+                      : "text-secondary-foreground"
+                  }
+                >
+                  {todo.title}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </Card>
+    </GoalDrawer>
+  );
+}
+
+function SecondaryGoalCard({
+  goal,
+}: {
+  goal: Parameters<typeof getGoalProgress>[0];
+}) {
+  const progress = getGoalProgress(goal);
+
+  return (
+    <GoalDrawer goal={goal}>
+      <Card
+        size="sm"
+        className="cursor-pointer gap-2 rounded-lg border border-border bg-card p-3 text-left shadow-none ring-0 transition hover:border-primary/30"
+      >
+        <div className="flex items-center justify-between gap-2">
+          <span className="flex items-center gap-2 text-sm font-semibold tracking-[-0.02em]">
+            <Target className="size-3.5 shrink-0 text-primary" />
+            {goal.name}
+          </span>
+          <span className="text-sm font-bold text-foreground">
+            {progress.percent}
+            <span className="text-xs text-subtle">%</span>
+          </span>
+        </div>
+        <div className="text-[11px] text-subtle">
+          {progress.done}/{progress.total} done
+        </div>
+      </Card>
+    </GoalDrawer>
+  );
+}
+
+function StatusBar() {
+  return (
+    <footer className="flex items-center gap-4 overflow-x-auto border-t border-border bg-primary px-3 py-1 text-[12px] font-semibold text-primary-foreground">
+      <span className="flex items-center gap-1">
+        <GitBranch className="size-3" />
+        develop
+      </span>
+      <span className="flex items-center gap-1">
+        <OctagonAlert className="size-3" />
+        0
+        <TriangleAlert className="ml-1 size-3" />
+        0
+      </span>
+      <span className="hidden sm:inline">open_to_work: true</span>
+      <span className="ml-auto flex items-center gap-1">
+        <Crosshair className="size-3" />
+        target: nov 2026
+      </span>
+      <span className="hidden sm:inline">TypeScript React</span>
+      <span className="hidden sm:inline">UTF-8</span>
+    </footer>
   );
 }
