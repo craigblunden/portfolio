@@ -62,7 +62,7 @@ function Header() {
 
 function ContactRow() {
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-2 text-[12px] text-[#8b97a7]">
+    <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-[#8b97a7]">
       <ContactLink
         icon={Mail}
         label="craig.blunden89@gmail.com"
@@ -157,7 +157,7 @@ function HeroRoleCard({ role }: { role: Role }) {
           {role.highlights.map(({ icon: Icon, text }) => (
             <li
               key={text}
-              className="flex items-start gap-2 rounded-lg border border-[#232b36]/60 bg-[#0e1218]/60 p-3 text-[13px] text-[#c9d2df]"
+              className="flex items-start gap-2 rounded-lg border border-[#232b36]/60 bg-[#0e1218]/80 p-3 text-sm leading-relaxed text-[#c9d2df]"
             >
               <Icon className="mt-0.5 size-3.5 shrink-0 text-[#f0805c]" />
               <span>{text}</span>
@@ -186,7 +186,7 @@ function HeroRoleCard({ role }: { role: Role }) {
                     <span className="grid size-7 shrink-0 place-items-center rounded-md border border-[#f0805c]/30 bg-[#f0805c]/10 text-[#f0805c]">
                       <Icon className="size-3.5" />
                     </span>
-                    <span className="text-[12.5px] leading-relaxed text-[#c9d2df]">
+                    <span className="text-sm leading-relaxed text-[#c9d2df]">
                       {text}
                     </span>
                   </li>
@@ -258,7 +258,7 @@ function RoleCard({ role }: { role: Role }) {
         </span>
       </header>
 
-      <p className="mt-3 text-[13px] leading-relaxed text-[#c9d2df]">
+      <p className="mt-3 text-sm leading-relaxed text-[#c9d2df]">
         {role.summary}
       </p>
 
@@ -266,7 +266,7 @@ function RoleCard({ role }: { role: Role }) {
         {role.highlights.map(({ icon: Icon, text }) => (
           <li
             key={text}
-            className="flex items-start gap-2 text-[12.5px] text-[#c9d2df]"
+            className="flex items-start gap-2 text-sm leading-relaxed text-[#c9d2df]"
           >
             <Icon className="mt-0.5 size-3.5 shrink-0 text-[#f0805c]" />
             <span>{text}</span>
@@ -293,8 +293,8 @@ function StackList({
           key={item}
           className={
             tone === "hero"
-              ? "rounded-md border border-[#f0805c]/25 bg-[#f0805c]/5 px-2 py-0.5 text-[11px] text-[#f0805c]"
-              : "rounded-md border border-[#232b36] bg-[#151a22] px-2 py-0.5 text-[11px] text-[#8b97a7]"
+              ? "rounded-md border border-[#f0805c]/25 bg-[#f0805c]/5 px-2 py-0.5 text-sm text-[#f0805c]"
+              : "rounded-md border border-[#232b36] bg-[#151a22] px-2 py-0.5 text-sm text-[#8b97a7]"
           }
         >
           {item}
@@ -321,7 +321,7 @@ function SkillsSection() {
               {group.items.map((item) => (
                 <li
                   key={item}
-                  className="rounded-md border border-[#232b36] bg-[#151a22] px-2 py-0.5 text-[11px] text-[#c9d2df]"
+                  className="rounded-md border border-[#232b36] bg-[#151a22] px-2 py-0.5 text-sm text-[#c9d2df]"
                 >
                   {item}
                 </li>
@@ -366,13 +366,13 @@ function ValuesFooter() {
         {values.map((value) => (
           <li
             key={value}
-            className="rounded-lg border border-[#232b36]/60 bg-[#151a22] p-3 text-[12.5px] text-[#c9d2df]"
+            className="rounded-lg border border-[#232b36]/60 bg-[#151a22] p-3 text-sm leading-relaxed text-[#c9d2df]"
           >
             {value}
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-[11px] text-[#404a59]">
+      <p className="mt-4 text-sm text-[#8b97a7]">
         Available for interesting roles — reach out any time.
       </p>
     </section>

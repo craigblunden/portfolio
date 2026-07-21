@@ -40,7 +40,7 @@ export const heroRole: Role = {
   company: "Repeat.gg",
   title: "Full Stack Software Engineer",
   period: "2019 — Present",
-  location: "Fortitude Valley, Australia · Sony Interactive Entertainment",
+  location: "Fortitude Valley, Brisbane · Sony Interactive Entertainment",
   summary:
     "Building a competitive gaming platform used by tens of thousands of daily active users, where gamers compete in tournaments and earn rewards across their favourite titles. Joined pre-acquisition as part of a small startup team and stayed on through the acquisition by Sony Interactive Entertainment, now sitting inside the wider PlayStation family.",
   highlights: [
@@ -91,6 +91,10 @@ export const heroRole: Role = {
       text: "Assisted with the delivery of new tournament formats and scoring systems used by tens of thousands of daily active users.",
     },
     {
+      icon: Handshake,
+      text: "Collaborated with developers at Electronic Arts to debug, test and launch Battlefield into new and existing tournament offerings.",
+    },
+    {
       icon: Rocket,
       text: "Consistently reviewed as a key contributor to high-impact over multiple years, exceeding the expectations of the role.",
     },
@@ -139,7 +143,7 @@ export const priorRoles: Role[] = [
     highlights: [
       {
         icon: Code2,
-        text: "Built React components and Node.js API endpoints for a multi-million dollar revenue generating booking flow.",
+        text: "Updated core user flows for a multi-million dollar revenue generating booking flow.",
       },
       {
         icon: Rocket,
@@ -148,10 +152,6 @@ export const priorRoles: Role[] = [
       {
         icon: LayoutDashboard,
         text: "Upgraded the frontend feature set to Material Design, aligning with the Flight Centre design system.",
-      },
-      {
-        icon: UserPlus,
-        text: "Onboarded new developers and proposed team process improvements.",
       },
     ],
     stack: [
@@ -171,7 +171,7 @@ export const priorRoles: Role[] = [
     title: "Design Manager · Team Lead · Front-end Developer",
     period: "Sep 2014 — Oct 2018",
     summary:
-      "Retail and wholesale management platform covering eCommerce, POS, inventory and fulfilment. Grew from front-end developer into a design manager leading a team of 11.",
+      "Customer facing role delivering eCommerce websites for businesses using the Neto Retail and wholesale management platform. Grew from front-end developer into a design manager leading a team of 11 handling all aspects of the design and development process for clients starting or updating their eCommerce websites.",
     highlights: [
       {
         icon: Users,
