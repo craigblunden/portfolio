@@ -188,6 +188,9 @@ The sectioned single-column layout didn't land. Revised direction:
   todos inline as status rows; full todo detail stays in the drawer.
 - The public "goals" nav link is removed; `/goals` remains as the admin working board
   (it carries the todo move/update mutations, which the read-focused homepage does not).
+- **v2.1:** The books column became `blogs_written` (typed static `blogsData.ts`).
+  Books are now subtasks of a "Keep a steady reading habit" goal in the goals column,
+  so finishing a book ticks a todo and moves goal progress.
 
 ## Resolved Decisions (2026-07-21)
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/components/common/AppProviders";
-import { AppSidebar } from "@/components/common/AppSidebar";
+// import { AppSidebar } from "@/components/common/AppSidebar";
 import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -40,10 +40,10 @@ export default function RootLayout({
       )}
     >
       <body className="h-full font-sans">
-        <div className="min-h-screen bg-[#0a0d12] text-[#e9eef5] lg:grid lg:grid-cols-[220px_minmax(0,1fr)]">
-          <AppSidebar />
+        <div className="min-h-screen bg-background text-foreground">
+          {/* <AppSidebar /> */}
 
-          <main className="min-w-0 bg-[#0a0d12] pt-14 text-[#e9eef5] lg:pt-0">
+          <main className="min-w-0 bg-background text-foreground">
             <AppProviders>{children}</AppProviders>
           </main>
         </div>

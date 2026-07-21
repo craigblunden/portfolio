@@ -8,7 +8,6 @@ import {
 } from "@/features/dashboard/data/dashboardData";
 import { QueryClient } from "@tanstack/react-query";
 import {
-  BookOpen,
   Check,
   Circle,
   CircleDot,
@@ -18,13 +17,17 @@ import {
   FileText,
   GitBranch,
   OctagonAlert,
+  PenLine,
   Rocket,
   Target,
   TriangleAlert,
   Zap,
 } from "lucide-react";
 import { projects } from "@/features/dashboard/data/projectsData";
-import { books, type BookStatus } from "@/features/dashboard/data/booksData";
+import {
+  blogPosts,
+  type BlogStatus,
+} from "@/features/dashboard/data/blogsData";
 import { GoalDrawer } from "./GoalDrawer";
 import { getGoals, PagedGoalsResponse } from "@/features/goals/api/goals";
 import { getGoalProgress } from "@/features/goals/lib/goalProgress";
@@ -32,10 +35,10 @@ import type { Todo, TodoStatus } from "@/features/todos/api/todos";
 import { AdminSessionButton } from "@/features/auth/components/AdminSessionButton";
 import { getAdminSession } from "@/features/auth/api/session";
 
-const bookStatusStyles: Record<BookStatus, string> = {
-  reading: "bg-primary/15 text-primary",
-  finished: "bg-success/15 text-success",
-  queued: "bg-secondary text-muted-foreground",
+const blogStatusStyles: Record<BlogStatus, string> = {
+  published: "bg-success/15 text-success",
+  draft: "bg-primary/15 text-primary",
+  planned: "bg-secondary text-muted-foreground",
 };
 
 const todoStatusIcon: Record<TodoStatus, React.ReactNode> = {
@@ -174,34 +177,43 @@ export async function DashboardPage({
           </BoardColumn>
 
           <BoardColumn
-            icon={<BookOpen className="size-3.5" />}
-            title="books"
-            count={books.length}
+            icon={<PenLine className="size-3.5" />}
+            title="blogs_written"
+            count={blogPosts.length}
           >
-            {books.map((book) => (
-              <Card
-                key={book.title}
-                size="sm"
-                className="gap-2 rounded-lg border border-border bg-card p-4 py-4 shadow-none ring-0"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-sm font-semibold tracking-[-0.02em]">
-                    {book.title}
-                  </h3>
-                  <Badge
-                    className={`shrink-0 border-0 font-mono ${bookStatusStyles[book.status]}`}
-                  >
-                    {book.status}
-                  </Badge>
-                </div>
-                <p className="text-sm text-subtle">{book.author}</p>
-                {book.note ? (
+            {blogPosts.map((post) => {
+              const inner = (
+                <Card
+                  size="sm"
+                  className="gap-2 rounded-lg border border-border bg-card p-4 py-4 shadow-none ring-0 transition hover:border-primary/30"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-sm font-semibold tracking-[-0.02em]">
+                      {post.title}
+                    </h3>
+                    <Badge
+                      className={`shrink-0 border-0 font-mono ${blogStatusStyles[post.status]}`}
+                    >
+                      {post.status}
+                    </Badge>
+                  </div>
                   <p className="text-sm leading-6 text-muted-foreground">
-                    {book.note}
+                    {post.excerpt}
                   </p>
-                ) : null}
-              </Card>
-            ))}
+                  {post.tag ? (
+                    <span className="text-[11px] text-subtle">#{post.tag}</span>
+                  ) : null}
+                </Card>
+              );
+
+              return post.href ? (
+                <Link key={post.title} href={post.href}>
+                  {inner}
+                </Link>
+              ) : (
+                <div key={post.title}>{inner}</div>
+              );
+            })}
           </BoardColumn>
         </div>
       </div>

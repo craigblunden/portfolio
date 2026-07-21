@@ -34,6 +34,28 @@ const baseSubtasks: Todo[] = [
   },
 ];
 
+// PLACEHOLDER reading list — swap in the real books being read.
+const readingSubtasks: Todo[] = [
+  {
+    id: 101,
+    title: "Staff Engineer — Will Larson",
+    status: "Completed",
+    goalId: 2,
+  },
+  {
+    id: 102,
+    title: "The Pragmatic Programmer — Thomas & Hunt",
+    status: "InProgress",
+    goalId: 2,
+  },
+  {
+    id: 103,
+    title: "A Philosophy of Software Design — John Ousterhout",
+    status: "Backlog",
+    goalId: 2,
+  },
+];
+
 export const goals: Goal[] = [
   {
     id: 1,
@@ -41,6 +63,13 @@ export const goals: Goal[] = [
     summary:
       "Turn the redundancy period into a focused campaign: clear positioning, consistent applications, strong portfolio proof, and warm conversations with teams doing meaningful product engineering.",
     todos: baseSubtasks,
+  },
+  {
+    id: 2,
+    name: "Keep a steady reading habit",
+    summary:
+      "One book at a time, biased towards engineering craft and career judgement — each book is a subtask, ticked off when finished.",
+    todos: readingSubtasks,
   },
 ];
 
