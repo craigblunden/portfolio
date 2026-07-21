@@ -14,7 +14,11 @@ public class GoalServiceTests
         var service = CreateService(repository);
 
         await service.CreateAsync(
-            new GoalRequestCreateDto { Name = "Keep a steady reading habit", Summary = "One book at a time." }
+            new GoalRequestCreateDto
+            {
+                Name = "Keep a steady reading habit",
+                Summary = "One book at a time.",
+            }
         );
 
         var stored = Assert.Single(repository.Goals);

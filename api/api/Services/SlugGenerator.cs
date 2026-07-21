@@ -23,13 +23,11 @@ public static partial class SlugGenerator
         // the marks folds "é" to "e" rather than deleting the character entirely.
         var decomposed = name.ToLowerInvariant().Normalize(NormalizationForm.FormD);
 
-        var folded = new string(
-            [
-                .. decomposed.Where(c =>
-                    CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark
-                ),
-            ]
-        );
+        var folded = new string([
+            .. decomposed.Where(c =>
+                CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark
+            ),
+        ]);
 
         var slug = NonSlugCharacters().Replace(folded, string.Empty);
         slug = SeparatorRuns().Replace(slug, "-").Trim('-');
