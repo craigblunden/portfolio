@@ -4,6 +4,8 @@ const serverApiUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL;
 
 export type Goal = {
   id: number;
+  /** Stable key referenced from blog frontmatter. Assigned by the API on create. */
+  slug: string;
   name: string;
   summary: string;
   todos: Todo[];

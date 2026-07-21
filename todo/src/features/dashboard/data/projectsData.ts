@@ -1,6 +1,8 @@
 export type ProjectStatus = "active" | "designing" | "paused" | "shipped";
 
 export type Project = {
+  /** Stable key referenced from blog frontmatter; validated at build time. */
+  slug: string;
   name: string;
   summary: string;
   status: ProjectStatus;
@@ -10,6 +12,7 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    slug: "portfolio-dashboard",
     name: "portfolio / career dashboard",
     summary:
       "This site — a full-stack Next.js and .NET app serving as live resume, goal tracker, and public accountability dashboard for the job search.",
@@ -19,6 +22,7 @@ export const projects: Project[] = [
   },
   // PLACEHOLDER — replace with a real current project before launch.
   {
+    slug: "second-project-placeholder",
     name: "second project placeholder",
     summary:
       "Swap this entry for whatever you're actually building next — keep the one-liner focused on why it matters.",

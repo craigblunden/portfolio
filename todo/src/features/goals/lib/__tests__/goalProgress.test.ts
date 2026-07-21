@@ -12,6 +12,7 @@ const makeTodo = (id: number, status: Todo["status"]): Todo => ({
 
 const makeGoal = (todos: Todo[]): Goal => ({
   id: 1,
+  slug: "test-goal",
   name: "Test goal",
   summary: "A goal for testing",
   todos,

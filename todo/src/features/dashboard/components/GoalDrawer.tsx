@@ -11,13 +11,18 @@ import {
 } from "@/components/ui/drawer";
 import type { Goal } from "@/features/goals/api/goals";
 import { Calendar, Check, MoreHorizontal, Rocket, Target } from "lucide-react";
+import type { PostMeta } from "@/features/blog/api/posts";
+import { AttachedArticles } from "@/features/blog/components/AttachedArticles";
 import { MetaRow } from "./MetaRow";
 
 export function GoalDrawer({
   goal,
+  articles = [],
   children,
 }: {
   goal: Goal;
+  /** Posts attached to this goal. Usually empty — most goals have no articles. */
+  articles?: PostMeta[];
   children: React.ReactNode;
 }) {
   const doneCount = goal.todos.filter((todo) => todo.status === "Completed").length;
@@ -109,6 +114,8 @@ export function GoalDrawer({
               </div>
             ))}
           </div>
+
+          <AttachedArticles posts={articles} />
         </div>
 
         <DrawerFooter className="border-t border-border p-4">

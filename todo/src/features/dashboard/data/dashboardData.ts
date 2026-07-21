@@ -59,6 +59,7 @@ const readingSubtasks: Todo[] = [
 export const goals: Goal[] = [
   {
     id: 1,
+    slug: "land-next-senior-role",
     name: "Land the next senior engineering role",
     summary:
       "Turn the redundancy period into a focused campaign: clear positioning, consistent applications, strong portfolio proof, and warm conversations with teams doing meaningful product engineering.",
@@ -66,6 +67,7 @@ export const goals: Goal[] = [
   },
   {
     id: 2,
+    slug: "keep-steady-reading-habit",
     name: "Keep a steady reading habit",
     summary:
       "One book at a time, biased towards engineering craft and career judgement — each book is a subtask, ticked off when finished.",

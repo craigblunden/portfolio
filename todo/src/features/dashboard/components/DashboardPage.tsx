@@ -22,20 +22,14 @@ import {
   Zap,
 } from "lucide-react";
 import { projects } from "@/features/dashboard/data/projectsData";
-import {
-  blogPosts,
-  type BlogStatus,
-} from "@/features/dashboard/data/blogsData";
+import { loadAllPosts, type PostMeta } from "@/features/blog/api/posts";
+import { PostCard } from "@/features/blog/components/PostCard";
+import { AttachedArticles } from "@/features/blog/components/AttachedArticles";
+import { postsForGoal, postsForProject } from "@/features/blog/lib/attachments";
 import { GoalDrawer } from "./GoalDrawer";
-import { getGoals, PagedGoalsResponse } from "@/features/goals/api/goals";
+import { getGoals, type Goal, PagedGoalsResponse } from "@/features/goals/api/goals";
 import { getGoalProgress } from "@/features/goals/lib/goalProgress";
 import type { Todo, TodoStatus } from "@/features/todos/api/todos";
-
-const blogStatusStyles: Record<BlogStatus, string> = {
-  published: "bg-success/15 text-success",
-  draft: "bg-primary/15 text-primary",
-  planned: "bg-secondary text-muted-foreground",
-};
 
 const todoStatusIcon: Record<TodoStatus, React.ReactNode> = {
   Completed: <Check className="size-3.5 text-success" />,
@@ -78,6 +72,12 @@ export async function DashboardPage({
   const [northStar, ...otherGoals] = goals;
   const recentlyCompleted = completedTasks.slice(0, COMPLETED_DISPLAY_CAP);
 
+  const posts = await loadAllPosts();
+  const knownGoalSlugs = goals.map((goal) => goal.slug);
+  const knownProjectSlugs = projects.map((project) => project.slug);
+
+  const articlesForGoal = (slug: string) => postsForGoal(posts, slug, knownGoalSlugs);
+
   return (
     <div className="flex min-h-full flex-col overflow-x-hidden bg-background font-mono text-foreground">
       <div className="min-h-0 flex-1 px-4 py-5 sm:px-6">
@@ -96,12 +96,16 @@ export async function DashboardPage({
             count={goals.length}
           >
             {northStar ? (
-              <NorthStarCard goal={northStar} />
+              <NorthStarCard goal={northStar} articles={articlesForGoal(northStar.slug)} />
             ) : (
               <EmptyColumnNote>No goals yet.</EmptyColumnNote>
             )}
             {otherGoals.map((goal) => (
-              <SecondaryGoalCard key={goal.name} goal={goal} />
+              <SecondaryGoalCard
+                key={goal.name}
+                goal={goal}
+                articles={articlesForGoal(goal.slug)}
+              />
             ))}
 
             {recentlyCompleted.length > 0 ? (
@@ -165,6 +169,10 @@ export async function DashboardPage({
                     </Badge>
                   ))}
                 </div>
+
+                <AttachedArticles
+                  posts={postsForProject(posts, project.slug, knownProjectSlugs)}
+                />
               </Card>
             ))}
           </BoardColumn>
@@ -172,41 +180,19 @@ export async function DashboardPage({
           <BoardColumn
             icon={<PenLine className="size-3.5" />}
             title="articles"
-            count={blogPosts.length}
+            count={posts.length}
           >
-            {blogPosts.map((post) => {
-              const inner = (
-                <Card
-                  size="sm"
-                  className="gap-2 rounded-lg border border-border bg-card p-4 py-4 shadow-none ring-0 transition hover:border-primary/30"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-sm font-semibold tracking-[-0.02em]">
-                      {post.title}
-                    </h3>
-                    <Badge
-                      className={`shrink-0 border-0 font-mono ${blogStatusStyles[post.status]}`}
-                    >
-                      {post.status}
-                    </Badge>
-                  </div>
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    {post.excerpt}
-                  </p>
-                  {post.tag ? (
-                    <span className="text-[11px] text-subtle">#{post.tag}</span>
-                  ) : null}
-                </Card>
-              );
-
-              return post.href ? (
-                <Link key={post.title} href={post.href}>
-                  {inner}
-                </Link>
-              ) : (
-                <div key={post.title}>{inner}</div>
-              );
-            })}
+            {posts.length > 0 ? (
+              posts.map((post) => <PostCard key={post.slug} post={post} />)
+            ) : (
+              <EmptyColumnNote>No articles yet.</EmptyColumnNote>
+            )}
+            <Link
+              href="/blog"
+              className="px-1 text-[11px] text-subtle transition hover:text-foreground"
+            >
+              view all articles →
+            </Link>
           </BoardColumn>
         </div>
       </div>
@@ -294,14 +280,16 @@ function EmptyColumnNote({ children }: { children: React.ReactNode }) {
 
 function NorthStarCard({
   goal,
+  articles,
 }: {
-  goal: Parameters<typeof getGoalProgress>[0];
+  goal: Goal;
+  articles: PostMeta[];
 }) {
   const progress = getGoalProgress(goal);
   const previewTodos = (goal.todos ?? []).slice(0, TODO_PREVIEW_CAP);
 
   return (
-    <GoalDrawer goal={goal}>
+    <GoalDrawer goal={goal} articles={articles}>
       <Card
         size="sm"
         className="cursor-pointer gap-3 rounded-lg border border-primary/30 bg-card p-4 text-left shadow-none ring-0 transition hover:border-primary/50"
@@ -360,13 +348,15 @@ function NorthStarCard({
 
 function SecondaryGoalCard({
   goal,
+  articles,
 }: {
-  goal: Parameters<typeof getGoalProgress>[0];
+  goal: Goal;
+  articles: PostMeta[];
 }) {
   const progress = getGoalProgress(goal);
 
   return (
-    <GoalDrawer goal={goal}>
+    <GoalDrawer goal={goal} articles={articles}>
       <Card
         size="sm"
         className="cursor-pointer gap-2 rounded-lg border border-border bg-card p-3 text-left shadow-none ring-0 transition hover:border-primary/30"
