@@ -9,6 +9,20 @@ export const POST_STATUSES = ["published", "draft", "planned"] as const;
 /** Meta descriptions are truncated by search engines around 160 characters. */
 const DESCRIPTION_MAX = 200;
 
+/**
+ * YAML parses an unquoted `2026-07-21` into a Date, so frontmatter yields either a
+ * Date or a string depending on whether the author quoted it. Both are normalised to
+ * a plain `YYYY-MM-DD` string.
+ *
+ * Dates stay strings from here on: ISO strings sort correctly with localeCompare and
+ * cannot drift a day across timezones the way a Date can.
+ */
+const calendarDate = (label: string) =>
+  z.preprocess(
+    (value) => (value instanceof Date ? value.toISOString().slice(0, 10) : value),
+    z.string().regex(ISO_DATE_PATTERN, `${label} must be in YYYY-MM-DD format.`),
+  );
+
 const slugList = (field: string) =>
   z
     .array(
@@ -28,11 +42,8 @@ const frontmatterSchema = z
       .string()
       .min(1, "Description is required — it is used as both meta description and card excerpt.")
       .max(DESCRIPTION_MAX, `Description must be ${DESCRIPTION_MAX} characters or fewer.`),
-    date: z.string().regex(ISO_DATE_PATTERN, "Date must be in YYYY-MM-DD format."),
-    updated: z
-      .string()
-      .regex(ISO_DATE_PATTERN, "Updated must be in YYYY-MM-DD format.")
-      .optional(),
+    date: calendarDate("Date"),
+    updated: calendarDate("Updated").optional(),
     status: z.enum(POST_STATUSES),
     tags: z.array(z.string().min(1)).default([]),
     goals: slugList("goals"),

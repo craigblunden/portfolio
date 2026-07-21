@@ -50,6 +50,20 @@ describe("parseFrontmatter", () => {
     it("accepts an optional updated date", () => {
       expect(parse({ updated: "2026-07-24" }).updated).toBe("2026-07-24");
     });
+
+    // YAML turns an unquoted 2026-07-21 into a Date, so this is the path real posts
+    // take unless the author remembers to quote it.
+    it("normalises a Date from YAML into a YYYY-MM-DD string", () => {
+      const result = parse({ date: new Date("2026-07-21T00:00:00.000Z") });
+
+      expect(result.date).toBe("2026-07-21");
+    });
+
+    it("normalises an updated Date the same way", () => {
+      const result = parse({ updated: new Date("2026-07-24T00:00:00.000Z") });
+
+      expect(result.updated).toBe("2026-07-24");
+    });
   });
 
   describe("required fields", () => {
