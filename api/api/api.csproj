@@ -34,7 +34,8 @@
                              GHSA-2m69-gcr7-jv3q.
 
     Remove these once the parent packages ship versions that resolve the fixed
-    dependencies themselves; verify with `dotnet list package --vulnerable --include-transitive`.
+    dependencies themselves. Verify with:
+      dotnet list package (with the vulnerable and include-transitive flags)
   -->
   <ItemGroup>
     <PackageReference Include="Microsoft.OpenApi" Version="2.11.0" />
