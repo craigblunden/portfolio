@@ -6,7 +6,16 @@ import {
   goals as goalFixtures,
 } from "@/features/dashboard/data/dashboardData";
 import { QueryClient } from "@tanstack/react-query";
-import { Check, Clock, Crosshair, MoreHorizontal, Target } from "lucide-react";
+import {
+  Check,
+  Clock,
+  Code2,
+  Crosshair,
+  MoreHorizontal,
+  Rocket,
+  Target,
+} from "lucide-react";
+import { projects } from "@/features/dashboard/data/projectsData";
 import { DashboardSection } from "./DashboardSection";
 import { GoalDrawer } from "./GoalDrawer";
 import { getGoals, PagedGoalsResponse } from "@/features/goals/api/goals";
@@ -188,6 +197,46 @@ export async function DashboardPage({
               ) : null}
             </DashboardSection>
           ) : null}
+
+          <DashboardSection title="projects_im_building" count={projects.length}>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              {projects.map((project) => (
+                <Card
+                  key={project.name}
+                  size="sm"
+                  className="gap-4 rounded-xl border border-border bg-card p-4 py-4 shadow-none ring-0"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="grid size-9 place-items-center rounded-lg bg-secondary text-primary">
+                      <Rocket className="size-5" />
+                    </div>
+                    <Badge className="border-0 bg-info/15 font-mono text-info">
+                      {project.status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold tracking-[-0.02em]">
+                      {project.name}
+                    </h3>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                      {project.summary}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {project.stack.map((item) => (
+                      <Badge
+                        key={item}
+                        className="border-0 bg-secondary font-mono text-muted-foreground"
+                      >
+                        <Code2 className="size-3" />
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </DashboardSection>
 
           <DashboardSection
             title="recently_completed"
