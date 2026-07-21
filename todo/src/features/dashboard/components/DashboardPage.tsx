@@ -92,7 +92,7 @@ export async function DashboardPage({
         <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
           <BoardColumn
             icon={<Zap className="size-3.5" />}
-            title="goals_and_todos"
+            title="goals"
             count={goals.length}
           >
             {northStar ? (
@@ -171,7 +171,7 @@ export async function DashboardPage({
 
           <BoardColumn
             icon={<PenLine className="size-3.5" />}
-            title="blogs_written"
+            title="articles"
             count={blogPosts.length}
           >
             {blogPosts.map((post) => {

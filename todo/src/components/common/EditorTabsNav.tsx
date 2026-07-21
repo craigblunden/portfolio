@@ -30,7 +30,10 @@ export function EditorTabsNav() {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Primary" className="flex items-center font-mono">
+    <nav
+      aria-label="Primary"
+      className="sticky top-0 z-40 flex items-center border-b border-border bg-card font-mono"
+    >
       {tabs.map(({ label, href, icon: Icon, isActive }) => {
         const active = isActive(pathname);
 
