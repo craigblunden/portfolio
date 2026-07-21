@@ -25,7 +25,11 @@ import { projects } from "@/features/dashboard/data/projectsData";
 import { loadAllPosts, type PostMeta } from "@/features/blog/api/posts";
 import { PostCard } from "@/features/blog/components/PostCard";
 import { AttachedArticles } from "@/features/blog/components/AttachedArticles";
-import { postsForGoal, postsForProject } from "@/features/blog/lib/attachments";
+import {
+  postsForGoal,
+  postsForProject,
+  validateAttachments,
+} from "@/features/blog/lib/attachments";
 import { GoalDrawer } from "./GoalDrawer";
 import { getGoals, type Goal, PagedGoalsResponse } from "@/features/goals/api/goals";
 import { getGoalProgress } from "@/features/goals/lib/goalProgress";
@@ -72,11 +76,23 @@ export async function DashboardPage({
   const [northStar, ...otherGoals] = goals;
   const recentlyCompleted = completedTasks.slice(0, COMPLETED_DISPLAY_CAP);
 
-  const posts = await loadAllPosts();
-  const knownGoalSlugs = goals.map((goal) => goal.slug);
-  const knownProjectSlugs = projects.map((project) => project.slug);
+  // This page is server-rendered per request, so it reads content/ at runtime. A
+  // missing or unreadable content directory should cost the articles column, not the
+  // goals and projects alongside it — the same reasoning as the goals fetch above.
+  let posts: PostMeta[] = [];
 
-  const articlesForGoal = (slug: string) => postsForGoal(posts, slug, knownGoalSlugs);
+  try {
+    posts = await loadAllPosts();
+  } catch (error) {
+    console.error("[dashboard] Could not load posts; rendering without them.", error);
+  }
+
+  // Checked once here rather than inside each lookup, so a bad reference is reported
+  // a single time instead of once per goal rendered.
+  validateAttachments(posts, {
+    projects: projects.map((project) => project.slug),
+    goals: goals.map((goal) => goal.slug),
+  });
 
   return (
     <div className="flex min-h-full flex-col overflow-x-hidden bg-background font-mono text-foreground">
@@ -96,7 +112,7 @@ export async function DashboardPage({
             count={goals.length}
           >
             {northStar ? (
-              <NorthStarCard goal={northStar} articles={articlesForGoal(northStar.slug)} />
+              <NorthStarCard goal={northStar} articles={postsForGoal(posts, northStar.slug)} />
             ) : (
               <EmptyColumnNote>No goals yet.</EmptyColumnNote>
             )}
@@ -104,7 +120,7 @@ export async function DashboardPage({
               <SecondaryGoalCard
                 key={goal.name}
                 goal={goal}
-                articles={articlesForGoal(goal.slug)}
+                articles={postsForGoal(posts, goal.slug)}
               />
             ))}
 
@@ -171,7 +187,7 @@ export async function DashboardPage({
                 </div>
 
                 <AttachedArticles
-                  posts={postsForProject(posts, project.slug, knownProjectSlugs)}
+                  posts={postsForProject(posts, project.slug)}
                 />
               </Card>
             ))}

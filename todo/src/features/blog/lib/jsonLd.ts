@@ -30,3 +30,14 @@ export function postJsonLd(post: PostMeta) {
     },
   };
 }
+
+/**
+ * Serialises the JSON-LD for embedding in a script tag.
+ *
+ * JSON.stringify does not escape "<", so a field containing "</script>" would close
+ * the tag early and let whatever follows render as markup. Escaping to < keeps
+ * the JSON valid and parseable while making that impossible.
+ */
+export function postJsonLdScript(post: PostMeta): string {
+  return JSON.stringify(postJsonLd(post)).replace(/</g, "\\u003c");
+}

@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { loadPostBySlug, loadRoutablePosts } from "@/features/blog/api/posts";
+import {
+  loadPostBySlug,
+  loadPostMetaBySlug,
+  loadRoutablePosts,
+} from "@/features/blog/api/posts";
 import { PostBody } from "@/features/blog/components/PostBody";
 import { PostMetaRow } from "@/features/blog/components/PostMeta";
-import { postJsonLd } from "@/features/blog/lib/jsonLd";
+import { postJsonLdScript } from "@/features/blog/lib/jsonLd";
 
 /** Every post is known at build time, so an unlisted slug is a 404, not a miss. */
 export const dynamicParams = false;
@@ -22,7 +26,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = await loadPostBySlug(slug);
+  const post = await loadPostMetaBySlug(slug);
 
   if (!post) {
     return {};
@@ -68,7 +72,7 @@ export default async function BlogPostPage({
     <div className="min-h-full bg-background font-mono text-foreground">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(postJsonLd(post)) }}
+        dangerouslySetInnerHTML={{ __html: postJsonLdScript(post) }}
       />
 
       <article className="mx-auto max-w-2xl px-4 py-8 sm:px-6">

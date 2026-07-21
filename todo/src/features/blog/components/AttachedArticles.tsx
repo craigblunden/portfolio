@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { FileText } from "lucide-react";
-import type { PostMeta } from "@/features/blog/api/posts";
+import { isRoutable, type PostMeta } from "@/features/blog/api/posts";
 
 /**
  * "Read more" links for a goal or project.
  *
- * Renders nothing when there are no attached articles — most goals and projects will
- * never have one, and absence is the normal case rather than an empty state to fill.
+ * Only articles with a page of their own are shown. A post can be attached to a goal
+ * before it is written, and linking a planned or draft post would be a guaranteed
+ * 404 — isRoutable is the same rule the router uses, so the two cannot disagree.
+ *
+ * Renders nothing when nothing is linkable — most goals and projects will never have
+ * an article, and absence is the normal case rather than an empty state to fill.
  */
 export function AttachedArticles({
   posts,
@@ -15,7 +19,9 @@ export function AttachedArticles({
   posts: PostMeta[];
   label?: string;
 }) {
-  if (posts.length === 0) {
+  const linkable = posts.filter((post) => isRoutable(post.status));
+
+  if (linkable.length === 0) {
     return null;
   }
 
@@ -24,11 +30,11 @@ export function AttachedArticles({
       <div className="mb-2 flex items-baseline gap-2 text-[13px] font-semibold">
         <span className="text-accent-green">{"//"}</span>
         {label}
-        <span className="text-[11px] text-faint">[{posts.length}]</span>
+        <span className="text-[11px] text-faint">[{linkable.length}]</span>
       </div>
 
       <ul className="space-y-1.5">
-        {posts.map((post) => (
+        {linkable.map((post) => (
           <li key={post.slug}>
             <Link
               href={`/blog/${post.slug}`}

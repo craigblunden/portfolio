@@ -3,12 +3,11 @@ import { loadRoutablePosts } from "@/features/blog/api/posts";
 import { absoluteUrl } from "@/lib/site";
 
 /**
- * Published posts only. loadRoutablePosts is called with includeDrafts: false
- * explicitly rather than relying on NODE_ENV, so a draft can never leak into the
- * sitemap even if this is generated outside a production build.
+ * Published posts only — loadRoutablePosts excludes drafts and planned placeholders
+ * by definition, so neither can leak into the sitemap.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await loadRoutablePosts({ includeDrafts: false });
+  const posts = await loadRoutablePosts();
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: absoluteUrl("/"), changeFrequency: "weekly", priority: 1 },

@@ -5,6 +5,7 @@ import {
   isRoutable,
   loadAllPosts,
   loadPostBySlug,
+  loadPostMetaBySlug,
   loadRoutablePosts,
   sortByDateDesc,
 } from "../posts";
@@ -15,30 +16,30 @@ const slugsOf = (posts: Array<{ slug: string }>) => posts.map((post) => post.slu
 
 describe("isRoutable", () => {
   it("routes published posts", () => {
-    expect(isRoutable("published", false)).toBe(true);
-  });
-
-  it("routes drafts only when drafts are included", () => {
-    expect(isRoutable("draft", true)).toBe(true);
-    expect(isRoutable("draft", false)).toBe(false);
+    expect(isRoutable("published")).toBe(true);
   });
 
   // A planned post is a placeholder for something unwritten — it has no body, so a
   // page for it would be an empty page.
-  it("never routes planned posts, even with drafts included", () => {
-    expect(isRoutable("planned", true)).toBe(false);
+  it("never routes planned posts", () => {
+    expect(isRoutable("planned")).toBe(false);
+  });
+
+  it("never routes drafts, in any environment", () => {
+    expect(isRoutable("draft")).toBe(false);
   });
 });
 
 describe("isListable", () => {
   it("lists published and planned posts", () => {
-    expect(isListable("published", false)).toBe(true);
-    expect(isListable("planned", false)).toBe(true);
+    expect(isListable("published")).toBe(true);
+    expect(isListable("planned")).toBe(true);
   });
 
-  it("lists drafts only when drafts are included", () => {
-    expect(isListable("draft", true)).toBe(true);
-    expect(isListable("draft", false)).toBe(false);
+  // Drafts are hidden everywhere rather than only in production, so what is visible
+  // locally matches what ships.
+  it("never lists drafts, in any environment", () => {
+    expect(isListable("draft")).toBe(false);
   });
 });
 
@@ -73,27 +74,27 @@ describe("sortByDateDesc", () => {
 });
 
 describe("loadAllPosts", () => {
-  it("excludes drafts but keeps planned placeholders when drafts are hidden", async () => {
-    const posts = await loadAllPosts({ dir, includeDrafts: false });
+  it("excludes drafts but keeps planned placeholders", async () => {
+    const posts = await loadAllPosts({ dir });
 
     expect(slugsOf(posts)).toEqual(["a-planned", "newer-published", "older-published"]);
   });
 
-  it("includes drafts when drafts are shown", async () => {
-    const posts = await loadAllPosts({ dir, includeDrafts: true });
+  it("never includes drafts", async () => {
+    const posts = await loadAllPosts({ dir });
 
-    expect(slugsOf(posts)).toContain("a-draft");
+    expect(slugsOf(posts)).not.toContain("a-draft");
   });
 
   it("derives slug and reading time", async () => {
-    const posts = await loadAllPosts({ dir, includeDrafts: false });
+    const posts = await loadAllPosts({ dir });
     const post = posts.find((candidate) => candidate.slug === "newer-published");
 
     expect(post?.readingTime).toMatch(/^\d+ min read$/);
   });
 
   it("applies frontmatter defaults", async () => {
-    const posts = await loadAllPosts({ dir, includeDrafts: false });
+    const posts = await loadAllPosts({ dir });
     const post = posts.find((candidate) => candidate.slug === "older-published");
 
     expect(post?.goals).toEqual([]);
@@ -103,21 +104,38 @@ describe("loadAllPosts", () => {
 
 describe("loadRoutablePosts", () => {
   it("excludes planned posts", async () => {
-    const posts = await loadRoutablePosts({ dir, includeDrafts: true });
+    const posts = await loadRoutablePosts({ dir });
 
     expect(slugsOf(posts)).not.toContain("a-planned");
   });
 
   it("returns only published posts in a production build", async () => {
-    const posts = await loadRoutablePosts({ dir, includeDrafts: false });
+    const posts = await loadRoutablePosts({ dir });
 
     expect(slugsOf(posts)).toEqual(["newer-published", "older-published"]);
   });
 });
 
+describe("loadPostMetaBySlug", () => {
+  // generateMetadata needs frontmatter but never the HTML, and rendering runs Shiki
+  // over every code fence. Returning meta without html keeps that work off the path.
+  it("returns metadata without rendering the body", async () => {
+    const meta = await loadPostMetaBySlug("newer-published", { dir });
+
+    expect(meta?.title).toBe("A newer published post");
+    expect(meta).not.toHaveProperty("html");
+  });
+
+  it("applies the same routing rules as the full loader", async () => {
+    expect(await loadPostMetaBySlug("a-planned", { dir })).toBeNull();
+    expect(await loadPostMetaBySlug("a-draft", { dir })).toBeNull();
+    expect(await loadPostMetaBySlug("does-not-exist", { dir })).toBeNull();
+  });
+});
+
 describe("loadPostBySlug", () => {
   it("returns the post with rendered html", async () => {
-    const post = await loadPostBySlug("newer-published", { dir, includeDrafts: false });
+    const post = await loadPostBySlug("newer-published", { dir });
 
     expect(post?.title).toBe("A newer published post");
     expect(post?.html).toContain("<h2");
@@ -128,16 +146,10 @@ describe("loadPostBySlug", () => {
   });
 
   it("returns null for a planned post", async () => {
-    expect(await loadPostBySlug("a-planned", { dir, includeDrafts: true })).toBeNull();
+    expect(await loadPostBySlug("a-planned", { dir })).toBeNull();
   });
 
-  it("returns null for a draft when drafts are hidden", async () => {
-    expect(await loadPostBySlug("a-draft", { dir, includeDrafts: false })).toBeNull();
-  });
-
-  it("returns a draft when drafts are shown", async () => {
-    const post = await loadPostBySlug("a-draft", { dir, includeDrafts: true });
-
-    expect(post?.slug).toBe("a-draft");
+  it("returns null for a draft, so a draft URL 404s everywhere", async () => {
+    expect(await loadPostBySlug("a-draft", { dir })).toBeNull();
   });
 });
