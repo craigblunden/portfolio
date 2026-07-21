@@ -10,6 +10,7 @@ import { Check, Clock, Crosshair, MoreHorizontal, Target } from "lucide-react";
 import { DashboardSection } from "./DashboardSection";
 import { GoalDrawer } from "./GoalDrawer";
 import { getGoals, PagedGoalsResponse } from "@/features/goals/api/goals";
+import { getGoalProgress } from "@/features/goals/lib/goalProgress";
 import { AdminSessionButton } from "@/features/auth/components/AdminSessionButton";
 import { getAdminSession } from "@/features/auth/api/session";
 
@@ -40,6 +41,11 @@ export async function DashboardPage({
   const goals = goalsData?.payload.length
     ? [...goalsData.payload, ...goalFixtures]
     : goalFixtures;
+
+  const [northStar, ...otherGoals] = goals;
+  const northStarProgress = northStar
+    ? getGoalProgress(northStar)
+    : { done: 0, total: 0, percent: 0 };
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background font-mono text-foreground">
@@ -108,29 +114,80 @@ export async function DashboardPage({
             </div>
           </section>
 
-          <DashboardSection title="six_month_goals" count={goals.length}>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {goals.map((goal) => (
-                <GoalDrawer key={goal.name} goal={goal}>
-                  <Card
-                    size="sm"
-                    className="cursor-pointer gap-3 rounded-xl border border-border bg-card p-4 py-4 text-left shadow-none ring-0 transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_rgba(0,0,0,0.28)]"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="grid size-8 place-items-center rounded-lg bg-secondary">
-                        <Target className="size-4 text-primary" />
+          {northStar ? (
+            <DashboardSection title="the_goal" count={goals.length}>
+              <GoalDrawer goal={northStar}>
+                <Card
+                  size="sm"
+                  className="cursor-pointer gap-4 rounded-xl border border-primary/30 bg-card p-5 text-left shadow-none ring-0 transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[0_8px_24px_rgba(0,0,0,0.28)]"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10">
+                      <Target className="size-5 text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base font-bold tracking-[-0.02em] sm:text-lg">
+                        {northStar.name}
+                      </h3>
+                      <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
+                        {northStar.summary}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <div className="text-2xl font-extrabold text-primary">
+                        {northStarProgress.percent}
+                        <span className="text-sm text-subtle">%</span>
+                      </div>
+                      <div className="text-[11px] text-subtle">
+                        {northStarProgress.done}/{northStarProgress.total} done
+                        · due nov 2026
                       </div>
                     </div>
-                    <div>
-                      <div className="text-sm font-semibold tracking-[-0.02em]">
-                        {goal.name}
-                      </div>
-                    </div>
-                  </Card>
-                </GoalDrawer>
-              ))}
-            </div>
-          </DashboardSection>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{ width: `${northStarProgress.percent}%` }}
+                    />
+                  </div>
+                </Card>
+              </GoalDrawer>
+
+              {otherGoals.length > 0 ? (
+                <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  {otherGoals.map((goal) => {
+                    const progress = getGoalProgress(goal);
+                    return (
+                      <GoalDrawer key={goal.name} goal={goal}>
+                        <Card
+                          size="sm"
+                          className="cursor-pointer gap-3 rounded-xl border border-border bg-card p-4 py-4 text-left shadow-none ring-0 transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_8px_24px_rgba(0,0,0,0.28)]"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="grid size-8 place-items-center rounded-lg bg-secondary">
+                              <Target className="size-4 text-primary" />
+                            </div>
+                            <div className="text-lg font-bold text-foreground">
+                              {progress.percent}
+                              <span className="text-xs text-subtle">%</span>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-sm font-semibold tracking-[-0.02em]">
+                              {goal.name}
+                            </div>
+                            <div className="mt-1 text-[11px] text-subtle">
+                              {progress.done}/{progress.total} done
+                            </div>
+                          </div>
+                        </Card>
+                      </GoalDrawer>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </DashboardSection>
+          ) : null}
 
           <DashboardSection
             title="recently_completed"
