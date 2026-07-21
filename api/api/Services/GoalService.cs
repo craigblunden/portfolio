@@ -25,6 +25,7 @@ public class GoalService : IGoalService
         var goal = new Goal
         {
             Name = dto.Name,
+            Slug = SlugGenerator.Slugify(dto.Name),
             Summary = dto.Summary,
             Tags = dto.Tags ?? string.Empty,
         };
