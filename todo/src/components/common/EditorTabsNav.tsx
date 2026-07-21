@@ -19,6 +19,12 @@ const tabs: EditorTab[] = [
     isActive: (pathname) => pathname === "/",
   },
   {
+    label: "blog.md",
+    href: "/blog",
+    icon: FileText,
+    isActive: (pathname) => pathname.startsWith("/blog"),
+  },
+  {
     label: "resume.md",
     href: "/resume",
     icon: FileText,
