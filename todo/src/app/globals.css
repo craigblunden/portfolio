@@ -4,45 +4,57 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Design tokens — dark terminal aesthetic.
+ * Single source of truth for the site palette; components must use the
+ * semantic utilities (bg-background, bg-card, text-primary, ...) instead of
+ * raw hex values. See tasks/spec-homepage-refocus.md.
+ */
 :root {
   color-scheme: dark;
-  --surface: #252526;
-  --surface-elevated: #2d2d30;
-  --sidebar: #181818;
-  --border: #2b2b2b;
-  --input: #3c3c3c;
-  --muted: #9d9d9d;
-  --accent: #0e639c;
-  --accent-hover: #1177bb;
-  --accent-foreground: #ffffff;
-  --error: #f14c4c;
+  --background: #0a0d12;
+  --foreground: #e9eef5;
+  --surface: #0e1218;
+  --surface-elevated: #151a22;
+  --card: #0e1218;
+  --card-foreground: #e9eef5;
+  --popover: #0e1218;
+  --popover-foreground: #e9eef5;
+  --primary: #f0805c;
+  --primary-hover: #f59377;
+  --primary-foreground: #1a0f0a;
+  --secondary: #151a22;
+  --secondary-foreground: #c9d2df;
+  --muted: #151a22;
+  --muted-foreground: #8b97a7;
+  --accent: #151a22;
+  --accent-hover: #1a212b;
+  --accent-foreground: #e9eef5;
+  --accent-green: #57a773;
+  --success: #4ec98a;
+  --info: #5aa9ff;
+  --subtle: #5d6878;
+  --faint: #404a59;
+  --destructive: #f0664f;
+  --error: #f0664f;
+  --border: #232b36;
+  --input: #232b36;
+  --ring: #f0805c;
   --selection: #264f78;
-  --background: #1e1e1e;
-  --foreground: #cccccc;
-  --card: #252526;
-  --card-foreground: #cccccc;
-  --popover: #252526;
-  --popover-foreground: #cccccc;
-  --primary: #0e639c;
-  --primary-foreground: #ffffff;
-  --secondary: #2d2d30;
-  --secondary-foreground: #cccccc;
-  --muted-foreground: #9d9d9d;
-  --destructive: #f14c4c;
-  --ring: #007acc;
-  --chart-1: #75beff;
-  --chart-2: #4fc1ff;
-  --chart-3: #3794ff;
-  --chart-4: #007acc;
-  --chart-5: #005a9e;
+  --chart-1: #f0805c;
+  --chart-2: #4ec98a;
+  --chart-3: #5aa9ff;
+  --chart-4: #57a773;
+  --chart-5: #5d6878;
   --radius: 0.625rem;
-  --sidebar-foreground: #cccccc;
-  --sidebar-primary: #0e639c;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #2d2d30;
-  --sidebar-accent-foreground: #cccccc;
-  --sidebar-border: #2b2b2b;
-  --sidebar-ring: #007acc;
+  --sidebar: #0a0d12;
+  --sidebar-foreground: #e9eef5;
+  --sidebar-primary: #f0805c;
+  --sidebar-primary-foreground: #1a0f0a;
+  --sidebar-accent: #151a22;
+  --sidebar-accent-foreground: #e9eef5;
+  --sidebar-border: #232b36;
+  --sidebar-ring: #f0805c;
 }
 
 @theme inline {
@@ -57,6 +69,11 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-green: var(--accent-green);
+  --color-success: var(--success);
+  --color-info: var(--info);
+  --color-subtle: var(--subtle);
+  --color-faint: var(--faint);
   --color-error: var(--error);
   --color-selection: var(--selection);
   --font-sans: var(--font-sans);
@@ -81,6 +98,7 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -112,41 +130,42 @@ select {
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--muted);
+  color: var(--muted-foreground);
 }
 
+/* Site is dark-only; .dark mirrors :root so shadcn dark-mode variants resolve. */
 .dark {
-  --background: #1e1e1e;
-  --foreground: #cccccc;
-  --card: #252526;
-  --card-foreground: #cccccc;
-  --popover: #252526;
-  --popover-foreground: #cccccc;
-  --primary: #0e639c;
-  --primary-foreground: #ffffff;
-  --secondary: #2d2d30;
-  --secondary-foreground: #cccccc;
-  --muted: #9d9d9d;
-  --muted-foreground: #9d9d9d;
-  --accent: #0e639c;
-  --accent-foreground: #ffffff;
-  --destructive: #f14c4c;
-  --border: #2b2b2b;
-  --input: #3c3c3c;
-  --ring: #007acc;
-  --chart-1: #75beff;
-  --chart-2: #4fc1ff;
-  --chart-3: #3794ff;
-  --chart-4: #007acc;
-  --chart-5: #005a9e;
-  --sidebar: #181818;
-  --sidebar-foreground: #cccccc;
-  --sidebar-primary: #0e639c;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #2d2d30;
-  --sidebar-accent-foreground: #cccccc;
-  --sidebar-border: #2b2b2b;
-  --sidebar-ring: #007acc;
+  --background: #0a0d12;
+  --foreground: #e9eef5;
+  --card: #0e1218;
+  --card-foreground: #e9eef5;
+  --popover: #0e1218;
+  --popover-foreground: #e9eef5;
+  --primary: #f0805c;
+  --primary-foreground: #1a0f0a;
+  --secondary: #151a22;
+  --secondary-foreground: #c9d2df;
+  --muted: #151a22;
+  --muted-foreground: #8b97a7;
+  --accent: #151a22;
+  --accent-foreground: #e9eef5;
+  --destructive: #f0664f;
+  --border: #232b36;
+  --input: #232b36;
+  --ring: #f0805c;
+  --chart-1: #f0805c;
+  --chart-2: #4ec98a;
+  --chart-3: #5aa9ff;
+  --chart-4: #57a773;
+  --chart-5: #5d6878;
+  --sidebar: #0a0d12;
+  --sidebar-foreground: #e9eef5;
+  --sidebar-primary: #f0805c;
+  --sidebar-primary-foreground: #1a0f0a;
+  --sidebar-accent: #151a22;
+  --sidebar-accent-foreground: #e9eef5;
+  --sidebar-border: #232b36;
+  --sidebar-ring: #f0805c;
 }
 
 @layer base {
