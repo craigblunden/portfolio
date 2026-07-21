@@ -1,0 +1,9 @@
+# .NET build output
+[Bb]in/
+[Oo]bj/
+
+# Test results
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coverxml
