@@ -7,6 +7,7 @@ import {
 } from "@/features/dashboard/data/dashboardData";
 import { QueryClient } from "@tanstack/react-query";
 import {
+  BookOpen,
   Check,
   Clock,
   Code2,
@@ -16,6 +17,13 @@ import {
   Target,
 } from "lucide-react";
 import { projects } from "@/features/dashboard/data/projectsData";
+import { books, type BookStatus } from "@/features/dashboard/data/booksData";
+
+const bookStatusStyles: Record<BookStatus, string> = {
+  reading: "bg-primary/15 text-primary",
+  finished: "bg-success/15 text-success",
+  queued: "bg-secondary text-muted-foreground",
+};
 import { DashboardSection } from "./DashboardSection";
 import { GoalDrawer } from "./GoalDrawer";
 import { getGoals, PagedGoalsResponse } from "@/features/goals/api/goals";
@@ -232,6 +240,40 @@ export async function DashboardPage({
                         {item}
                       </Badge>
                     ))}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </DashboardSection>
+
+          <DashboardSection title="books_im_reading" count={books.length}>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {books.map((book) => (
+                <Card
+                  key={book.title}
+                  size="sm"
+                  className="gap-3 rounded-xl border border-border bg-card p-4 py-4 shadow-none ring-0"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="grid size-9 place-items-center rounded-lg bg-secondary text-accent-green">
+                      <BookOpen className="size-5" />
+                    </div>
+                    <Badge
+                      className={`border-0 font-mono ${bookStatusStyles[book.status]}`}
+                    >
+                      {book.status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold tracking-[-0.02em]">
+                      {book.title}
+                    </h3>
+                    <p className="mt-0.5 text-sm text-subtle">{book.author}</p>
+                    {book.note ? (
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                        {book.note}
+                      </p>
+                    ) : null}
                   </div>
                 </Card>
               ))}
