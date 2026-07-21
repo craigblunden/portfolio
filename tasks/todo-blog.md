@@ -2,7 +2,8 @@
 
 Spec: `tasks/spec-blog.md` · Plan: `tasks/plan-blog.md`
 
-> **Status:** Not started. Awaiting approval of spec + plan.
+> **Status (2026-07-21):** Track A tasks A0–A2 done on `feature/blog` (`f0b5792..f7bc61d`).
+> Backend suite green at 27 tests. Next: A3.
 
 Frontend commands run from `todo/`, backend from `api/api/` (tests from `api/`).
 Every frontend task must leave `pnpm lint`, `pnpm typecheck`, `pnpm test --run` green;
@@ -36,7 +37,7 @@ every backend task must leave `dotnet test` green.
   - **Added `api.Tests/.gitignore`.** The existing ignore file is scoped to `api/api/`, so
     the new project's `bin`/`obj` were untracked-but-not-ignored.
 
-- [ ] **A1: Slug generator and model column, test-first**
+- [x] **A1: Slug generator and model column, test-first** — done, `b391b91` + `5d25640`
   - Acceptance: `SlugGeneratorTests` covers the full spec table via `[Theory]`/`[InlineData]`
     — accents, punctuation, whitespace collapse, empty → `goal` — plus `EnsureUniqueAsync`
     returning free slugs unchanged and suffixing `-2`, `-3` on collision. `Goal` gains a
@@ -46,15 +47,23 @@ every backend task must leave `dotnet test` green.
   - Files: `Models/GoalModel.cs`, `Data/AppDbContext.cs`, `Services/SlugGenerator.cs`,
     `api.Tests/Services/SlugGeneratorTests.cs`
 
-- [ ] **A2: Create and apply the `AddGoalSlug` migration** ⚠
-  - Acceptance: migration adds the column with a `''` default, backfills existing rows via
-    `UPDATE`, then creates the unique index — three explicit steps, in that order.
-    Backfilled slugs are reviewed by hand and corrected to read well.
-  - Verify: `dotnet ef migrations script` read in full **before applying**. After
-    `dotnet ef database update`, query the Goals table — every row has a unique, non-empty,
-    kebab-case slug. Confirm `dotnet ef database update <prev>` rolls back cleanly.
-  - Files: `Migrations/<ts>_AddGoalSlug.cs`
-  - **Commit alone**, so it can be reverted independently.
+- [x] **A2: Create and apply the `AddGoalSlug` migration** — done, `f7bc61d`
+  - Acceptance: adds the column with a `''` default, then the unique index.
+    **The backfill step was dropped** — production has no goal rows, so there is nothing to
+    migrate. This removed the plan's second-highest risk entirely.
+  - Verify: migration read in full before applying ✅; applied, rolled back, and re-applied
+    against a local SQLite DB ✅.
+  - Files: `Migrations/20260721074258_AddGoalSlug.cs` (+ Designer, snapshot)
+
+  **Findings that revise the plan's risk table:**
+  - **Up is transactional; Down is not.** SQLite has no real `DROP COLUMN`, so EF rebuilds
+    the table and cannot wrap it in a transaction (`dotnet ef` emits 2 warnings on the down
+    path, 0 on the up path). Applying fails atomically and safely; an interrupted *rollback*
+    leaves partial state. **Prefer a forward fix over a rollback for this migration.**
+  - If the target DB unexpectedly holds ≥2 goals, all rows default to `""`, the unique index
+    fails, and the migration aborts cleanly — but since `Program.cs` migrates on startup,
+    that surfaces as a failed boot rather than a quiet skip.
+  - EF-generated migrations are **not** csharpier-formatted in this repo; left as generated.
 
 - [ ] **A3: Expose slug through the API**
   - Acceptance: `GoalResponseDto` carries `Slug`; `GoalRequestCreateDto` accepts an optional
