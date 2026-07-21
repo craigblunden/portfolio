@@ -22,16 +22,10 @@ export default async function AdminLayout({
             admin
           </span>
           <Link
-            href="/admin/todos"
-            className="text-muted-foreground transition hover:text-foreground"
+            href="/admin"
+            className="font-semibold text-foreground transition hover:text-foreground"
           >
-            Todos
-          </Link>
-          <Link
-            href="/admin/goals"
-            className="text-muted-foreground transition hover:text-foreground"
-          >
-            Goals
+            Goals & Todos
           </Link>
           <div className="ml-auto">
             <AdminSessionButton />
