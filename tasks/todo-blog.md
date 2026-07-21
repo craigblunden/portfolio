@@ -2,8 +2,9 @@
 
 Spec: `tasks/spec-blog.md` · Plan: `tasks/plan-blog.md`
 
-> **Status (2026-07-21):** Track A tasks A0–A2 done on `feature/blog` (`f0b5792..f7bc61d`).
-> Backend suite green at 27 tests. Next: A3.
+> **Status (2026-07-21):** **Track A complete** on `feature/blog` (`f0b5792..a91ead9`).
+> Backend suite green at **47 tests**. Next: Track B (frontend markdown pipeline), which
+> has no dependency on Track A until E1.
 
 Frontend commands run from `todo/`, backend from `api/api/` (tests from `api/`).
 Every frontend task must leave `pnpm lint`, `pnpm typecheck`, `pnpm test --run` green;
@@ -65,7 +66,11 @@ every backend task must leave `dotnet test` green.
     that surfaces as a failed boot rather than a quiet skip.
   - EF-generated migrations are **not** csharpier-formatted in this repo; left as generated.
 
-- [ ] **A3: Expose slug through the API**
+- [x] **A3: Expose slug through the API** — done, `d820a6e`
+  - **Decision:** a malformed supplied slug is *discarded* in favour of deriving from the
+    name, not normalised. Validity is checked as `Slugify(x) == x`, reusing the covered
+    function rather than adding a second regex that could drift from it. Pinned by
+    `CreateAsync_MalformedSlugSupplied_FallsBackToNameRatherThanNormalising`.
   - Acceptance: `GoalResponseDto` carries `Slug`; `GoalRequestCreateDto` accepts an optional
     `Slug`, derived from `Name` when omitted; `CreateAsync` generates and de-duplicates via
     `SlugGenerator`; `IGoalRepository.SlugExistsAsync` implemented.
@@ -78,7 +83,17 @@ every backend task must leave `dotnet test` green.
   - Files: `DTOs/GoalDto.cs`, `Services/GoalService.cs`, `Repositories/IGoalRepository.cs`,
     `Repositories/GoalRepository.cs`, `api.Tests/Services/GoalServiceTests.cs`
 
-- [ ] **A4: Repository and endpoint tests**
+- [x] **A4: Repository and endpoint tests** — done, `82fb63a` + `a91ead9`
+  - **Mutation-checked:** flipping the migration's index to `unique: false` fails exactly
+    one test, the duplicate-slug one. The constraint test genuinely tests the constraint.
+  - **Endpoint tests kept**, not dropped — the host booted once the factory supplied dummy
+    Google credentials and swapped the DbContext for SQLite in-memory.
+  - **Finding:** unauthenticated `POST /api/goals` returns **302 (challenge to Google)**,
+    not 401. `DefaultChallengeScheme` is Google, so the cookie handler's
+    `OnRedirectToLogin` → 401 mapping never fires. A 302 to an OAuth page is a poor
+    contract for an API consumed by a proxy — see Noticed But Not Touching.
+  - **NSubstitute never needed.** `FakeGoalRepository` covered every service test, so the
+    approved dependency was not installed. Real/fake beat a mock here.
   - Acceptance: `SqliteInMemoryFixture` opens and holds a `:memory:` connection and applies
     migrations. `GoalRepositoryTests` proves a duplicate slug insert **throws**, that
     `SlugExistsAsync` is correct, that paging returns the right rows with `Todos` included,
@@ -261,6 +276,19 @@ run. Worth a separate dependency-bump task — say the word and I'll raise one.
 
 Also noted: `api.csproj` references `Microsoft.EntityFrameworkCore.Cosmos`, which nothing in
 the codebase uses. Unrelated to this work.
+
+**Unauthenticated API calls get a 302, not a 401.** Found by the A4 endpoint tests.
+`DefaultChallengeScheme` is Google, so an unauthorised request is redirected to an OAuth
+consent page rather than rejected. The cookie handler already maps this to 401 via
+`OnRedirectToLogin`, but that only fires when cookies handle the challenge. For an API
+behind a Next.js proxy, a 302 to accounts.google.com is a worse contract than a 401 — the
+proxy cannot distinguish "not logged in" from a genuine redirect. Fixable by giving the
+`AdminOnly` policy an explicit authentication scheme. Out of scope here; worth its own task.
+
+**`api/dotnet-tools.json` is in the wrong place.** The manifest belongs at
+`api/.config/dotnet-tools.json`; where it currently sits, `dotnet tool restore` will not
+find it, so the pinned csharpier 1.2.6 is not actually restorable by a fresh clone. It only
+worked here because csharpier is installed globally on this machine.
 
 ## 🔵 Human contribution point (B2)
 
