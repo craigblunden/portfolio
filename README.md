@@ -63,3 +63,7 @@ https://<ui-app>.azurewebsites.net/api/auth/callback
 ```
 
 The browser signs in through the UI origin. Next.js proxies `/api/auth/*` to the ASP.NET Core API, so Google redirect URIs should use the UI host, not the API host.
+
+### Domain
+
+craigblunden.dev is hosted on Cloudflare

@@ -44,7 +44,7 @@ export function EditorTabsNav() {
         href="/"
         className="flex items-center text-base font-extrabold px-4"
       >
-        craig<span className="text-[#f0805c]">.dev</span>
+        craig<span className="text-[#f0805c]">blunden</span>
       </Link>
       {tabs.map(({ label, href, icon: Icon, isActive }) => {
         const active = isActive(pathname);
