@@ -6,8 +6,12 @@ import { type Frontmatter, parseFrontmatter } from "@/features/blog/lib/frontmat
 import { renderMarkdown } from "@/features/blog/lib/markdown";
 import { getReadingTime } from "@/features/blog/lib/readingTime";
 import { slugFromFilename } from "@/features/blog/lib/slug";
+import { isListable, isRoutable } from "@/features/blog/lib/postStatus";
 
-export type PostStatus = Frontmatter["status"];
+// Re-exported so server-side callers can keep importing everything post-related from
+// one place. Client components must import these from lib/postStatus directly — see
+// the note there.
+export { isListable, isRoutable, type PostStatus } from "@/features/blog/lib/postStatus";
 
 export type PostMeta = Frontmatter & {
   slug: string;
@@ -19,27 +23,6 @@ export type Post = PostMeta & {
 };
 
 export const BLOG_DIR = path.join(process.cwd(), "content", "blog");
-
-/**
- * Has its own page at /blog/<slug>.
- *
- * Only published posts do. A planned post is an unwritten placeholder with no body,
- * and a draft is deliberately not shown yet — linking either is a guaranteed 404.
- */
-export function isRoutable(status: PostStatus): boolean {
-  return status === "published";
-}
-
-/**
- * Appears anywhere in the UI.
- *
- * Drafts never render, in any environment. To preview one, set its status to
- * published locally — that is a single-word edit, and it keeps "what I can see" the
- * same everywhere instead of diverging between dev and production.
- */
-export function isListable(status: PostStatus): boolean {
-  return status !== "draft";
-}
 
 /** Newest first, with slug as a deterministic tie-break so ordering never wobbles. */
 export function sortByDateDesc<T extends { date: string; slug: string }>(posts: T[]): T[] {

@@ -9,6 +9,15 @@ export type Goal = {
   name: string;
   summary: string;
   todos: Todo[];
+  /**
+   * Calendar date the goal is aimed at, as `YYYY-MM-DD`.
+   *
+   * Optional because the API does not store it yet — goals without one simply omit
+   * the due chip rather than falling back to a hardcoded date. Kept as a string for
+   * the same reason blog dates are: it sorts correctly and cannot drift a day across
+   * timezones the way a Date can.
+   */
+  targetDate?: string;
 };
 
 export type PagedGoalsResponse = {
@@ -32,16 +41,36 @@ const getApiUrl = () => {
   return serverApiUrl;
 };
 
-export const getGoals = async (offset: number, limit: number) => {
-  const res = await fetch(
-    `${getApiUrl()}/goals?offset=${offset}&limit=${limit}`,
-  );
+/**
+ * Reads a JSON body, failing with the response's actual shape.
+ *
+ * A misconfigured base URL usually resolves to something that answers 200 with HTML
+ * rather than refusing the connection — pointing API_URL at this site makes /goals
+ * hit the app's own page. That passes the `res.ok` check and then dies inside
+ * JSON.parse as `Unexpected token '<'`, which names neither the URL nor the cause.
+ */
+async function readJson<T>(res: Response, url: string): Promise<T> {
+  const contentType = res.headers.get("content-type") ?? "";
 
-  if (!res.ok) {
-    throw new Error("Failed to load goals.");
+  if (!contentType.includes("application/json")) {
+    throw new Error(
+      `Expected JSON from ${url} but got "${contentType || "no content-type"}". ` +
+        `Check API_URL points at the API, not at the site.`,
+    );
   }
 
-  return (await res.json()) as PagedGoalsResponse;
+  return (await res.json()) as T;
+}
+
+export const getGoals = async (offset: number, limit: number) => {
+  const url = `${getApiUrl()}/goals?offset=${offset}&limit=${limit}`;
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`Failed to load goals: ${res.status} from ${url}.`);
+  }
+
+  return readJson<PagedGoalsResponse>(res, url);
 };
 
 export const getAllGoals = async (): Promise<Goal[]> => {
@@ -50,13 +79,12 @@ export const getAllGoals = async (): Promise<Goal[]> => {
   const limit = 50;
 
   while (true) {
-    const res = await fetch(
-      `${getApiUrl()}/goals?offset=${offset}&limit=${limit}`,
-    );
+    const url = `${getApiUrl()}/goals?offset=${offset}&limit=${limit}`;
+    const res = await fetch(url);
 
     if (!res.ok) break;
 
-    const data = (await res.json()) as PagedGoalsResponse;
+    const data = await readJson<PagedGoalsResponse>(res, url);
     allGoals.push(...data.payload);
 
     if (!data.meta.hasNextPage) break;

@@ -15,7 +15,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex-1 bg-background">
       <nav className="border-b border-border bg-card px-4 py-3 font-mono text-sm sm:px-8">
         <div className="mx-auto flex max-w-6xl items-center gap-6">
           <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-green">

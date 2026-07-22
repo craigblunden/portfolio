@@ -7,6 +7,13 @@ export type Todo = {
   title: string;
   status: TodoStatus;
   goalId: number;
+  /**
+   * One line of context under the title in the goal detail pane.
+   *
+   * Optional because the API does not store it yet — todos from the backend render
+   * as title-only, which is the same shape they have always had.
+   */
+  description?: string;
 };
 
 export type PagedTodosResponse = {

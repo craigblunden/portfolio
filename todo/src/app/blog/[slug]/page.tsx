@@ -69,7 +69,7 @@ export default async function BlogPostPage({
   }
 
   return (
-    <div className="min-h-full bg-background font-mono text-foreground">
+    <div className="flex-1 bg-background font-mono text-foreground">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: postJsonLdScript(post) }}

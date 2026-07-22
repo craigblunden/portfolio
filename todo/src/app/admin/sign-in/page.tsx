@@ -2,7 +2,7 @@ import { AdminSignIn } from "@/features/auth/components/AdminSignIn";
 
 export default function AdminSignInPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0a0d12] px-4 font-mono text-[#e9eef5]">
+    <div className="flex flex-1 items-center justify-center bg-[#0a0d12] px-4 font-mono text-[#e9eef5]">
       <div className="max-w-md rounded-xl border border-[#232b36] bg-[#0e1218] p-6">
         <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#57a773]">
           admin

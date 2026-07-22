@@ -4,6 +4,7 @@ import "./globals.css";
 import { AppProviders } from "@/components/common/AppProviders";
 // import { AppSidebar } from "@/components/common/AppSidebar";
 import { EditorTabsNav } from "@/components/common/EditorTabsNav";
+import { StatusBar } from "@/components/common/StatusBar";
 import { cn } from "@/lib/utils";
 import { siteDescription, siteName, siteUrl } from "@/lib/site";
 
@@ -56,13 +57,22 @@ export default function RootLayout({
       )}
     >
       <body className="h-full font-sans">
-        <div className="flex min-h-screen flex-col bg-background text-foreground">
+        {/*
+          min-h-dvh rather than min-h-screen so the bar lands on the real viewport
+          bottom on mobile, where the browser chrome makes 100vh taller than what is
+          actually visible. `flex-1` on main takes up the slack, which puts the status
+          bar at the bottom of the screen on short pages and after the content on
+          long ones.
+        */}
+        <div className="flex min-h-dvh flex-col bg-background text-foreground">
           {/* <AppSidebar /> */}
           <EditorTabsNav />
 
-          <main className="min-w-0 flex-1 bg-background text-foreground">
+          <main className="flex min-w-0 flex-1 flex-col bg-background text-foreground">
             <AppProviders>{children}</AppProviders>
           </main>
+
+          <StatusBar />
         </div>
       </body>
     </html>

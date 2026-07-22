@@ -8,6 +8,12 @@ export type Project = {
   status: ProjectStatus;
   stack: string[];
   link?: { label: string; href: string };
+  /**
+   * Goal slugs this project serves, surfaced as "linked" cards in the goal detail
+   * pane. Declared here rather than on the goal because projects are static data and
+   * goals come from the API — this keeps the edge in the file you can actually edit.
+   */
+  goals?: string[];
 };
 
 export const projects: Project[] = [
@@ -19,6 +25,7 @@ export const projects: Project[] = [
     status: "active",
     stack: ["Next.js", "React", ".NET", "Tailwind", "shadcn/ui"],
     link: { label: "github", href: "https://github.com/craigblunden" },
+    goals: ["land-next-senior-role", "ship-side-projects"],
   },
   // PLACEHOLDER — replace with a real current project before launch.
   {
@@ -28,5 +35,6 @@ export const projects: Project[] = [
       "Swap this entry for whatever you're actually building next — keep the one-liner focused on why it matters.",
     status: "designing",
     stack: ["TypeScript"],
+    goals: ["ship-side-projects"],
   },
 ];

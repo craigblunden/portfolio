@@ -24,7 +24,7 @@ import {
 
 export function ResumePage() {
   return (
-    <div className="min-h-screen bg-background px-4 py-8 font-mono text-foreground sm:px-8">
+    <div className="flex-1 bg-background px-4 py-8 font-mono text-foreground sm:px-8">
       <div className="mx-auto max-w-5xl space-y-10">
         <Header />
         <HeroRoleCard role={heroRole} />

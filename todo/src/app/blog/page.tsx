@@ -6,7 +6,7 @@ export default async function BlogIndexPage() {
   const posts = await loadRoutablePosts();
 
   return (
-    <div className="min-h-full bg-background font-mono text-foreground">
+    <div className="flex-1 bg-background font-mono text-foreground">
       <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
         <header className="mb-6">
           <div className="mb-2 flex items-center gap-2">

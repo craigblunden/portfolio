@@ -1,0 +1,16 @@
+{
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git check-ignore *)",
+      "Bash(dotnet test *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(csharpier format *)"
+    ]
+  },
+  "outputStyle": "Learning"
+}

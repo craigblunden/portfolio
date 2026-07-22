@@ -1,91 +1,86 @@
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  completedTasks,
-  goals as goalFixtures,
-} from "@/features/dashboard/data/dashboardData";
-import { QueryClient } from "@tanstack/react-query";
-import {
-  Check,
-  Circle,
-  CircleDot,
-  Code2,
-  Crosshair,
-  GitBranch,
-  OctagonAlert,
-  PenLine,
-  Rocket,
-  Target,
-  TriangleAlert,
-  Zap,
-} from "lucide-react";
-import { projects } from "@/features/dashboard/data/projectsData";
+// Code2 and PenLine are used only by the projects/articles strip that is currently
+// commented out below; kept so it can be restored by uncommenting alone.
+import { Code2, Crosshair, FileText, PenLine, Rocket } from "lucide-react";
+import { goals as goalFixtures } from "@/features/dashboard/data/dashboardData";
+import { projects, type Project } from "@/features/dashboard/data/projectsData";
 import { loadAllPosts, type PostMeta } from "@/features/blog/api/posts";
+import { isRoutable } from "@/features/blog/lib/postStatus";
 import { PostCard } from "@/features/blog/components/PostCard";
-import { AttachedArticles } from "@/features/blog/components/AttachedArticles";
 import {
   postsForGoal,
-  postsForProject,
   validateAttachments,
 } from "@/features/blog/lib/attachments";
-import { GoalDrawer } from "./GoalDrawer";
-import { getGoals, type Goal, PagedGoalsResponse } from "@/features/goals/api/goals";
+import {
+  formatTargetDate,
+  projectsForGoal,
+} from "@/features/dashboard/lib/goalLinks";
+import { GoalExplorer, type GoalEntry } from "./GoalExplorer";
+import { getGoals, type Goal } from "@/features/goals/api/goals";
 import { getGoalProgress } from "@/features/goals/lib/goalProgress";
-import type { Todo, TodoStatus } from "@/features/todos/api/todos";
-
-const todoStatusIcon: Record<TodoStatus, React.ReactNode> = {
-  Completed: <Check className="size-3.5 text-success" />,
-  InProgress: <CircleDot className="size-3.5 text-info" />,
-  Blocked: <OctagonAlert className="size-3.5 text-primary" />,
-  Backlog: <Circle className="size-3.5 text-subtle" />,
-};
-
-/* Inline todo previews per goal card; full detail lives in the drawer. */
-const TODO_PREVIEW_CAP = 4;
-const COMPLETED_DISPLAY_CAP = 3;
 
 type DashboardPageProps = {
   authDenied?: boolean;
 };
 
+/**
+ * How much of each list the explorer's side rail previews.
+ *
+ * A peek, not the list — the full set stays in the strip below, which is the only
+ * copy on narrower screens where the rail is hidden.
+ */
+const ASIDE_PROJECT_CAP = 2;
+const ASIDE_ARTICLE_CAP = 3;
+
+/**
+ * API goals first, fixtures filling the gaps.
+ *
+ * Deduplicated by slug because the two sources overlap once a fixture goal is created
+ * for real: without this the same goal appears twice in the rail, and two tabs would
+ * share one id.
+ */
+function mergeGoals(fromApi: Goal[], fixtures: Goal[]): Goal[] {
+  const seen = new Set(fromApi.map((goal) => goal.slug));
+
+  return [...fromApi, ...fixtures.filter((goal) => !seen.has(goal.slug))];
+}
+
 export async function DashboardPage({
   authDenied = false,
 }: DashboardPageProps) {
-  const queryClient = new QueryClient();
-
-  try {
-    await queryClient.prefetchQuery({
-      queryKey: ["goals", 0, 5],
-      queryFn: () => getGoals(0, 5),
-    });
-  } catch {
-    // API unavailable — fall back to fixtures below.
-  }
-
-  const goalsData = queryClient.getQueryData<PagedGoalsResponse>([
-    "goals",
-    0,
-    5,
+  // The goals request and the posts read are independent, so they run concurrently
+  // rather than one after the other. allSettled rather than all because each has its
+  // own fallback: a failing API costs the live goals, an unreadable content directory
+  // costs the articles, and neither should take down the other or the page.
+  const [goalsResult, postsResult] = await Promise.allSettled([
+    getGoals(0, 5),
+    loadAllPosts(),
   ]);
-  const goals = goalsData?.payload.length
-    ? [...goalsData.payload, ...goalFixtures]
-    : goalFixtures;
 
-  const [northStar, ...otherGoals] = goals;
-  const recentlyCompleted = completedTasks.slice(0, COMPLETED_DISPLAY_CAP);
-
-  // This page is server-rendered per request, so it reads content/ at runtime. A
-  // missing or unreadable content directory should cost the articles column, not the
-  // goals and projects alongside it — the same reasoning as the goals fetch above.
-  let posts: PostMeta[] = [];
-
-  try {
-    posts = await loadAllPosts();
-  } catch (error) {
-    console.error("[dashboard] Could not load posts; rendering without them.", error);
+  // Warn rather than error: both fallbacks are designed behaviour, and the page
+  // renders completely without either source. console.error would raise Next's dev
+  // error overlay on every load whenever the API simply isn't running locally, which
+  // trains you to ignore it. Still logged, so a real outage is not silent.
+  if (goalsResult.status === "rejected") {
+    console.warn(
+      "[dashboard] Could not load goals; falling back to fixtures.",
+      goalsResult.reason,
+    );
   }
+
+  if (postsResult.status === "rejected") {
+    console.warn(
+      "[dashboard] Could not load posts; rendering without them.",
+      postsResult.reason,
+    );
+  }
+
+  const goals = mergeGoals(
+    goalsResult.status === "fulfilled" ? goalsResult.value.payload : [],
+    goalFixtures,
+  );
+  const posts = postsResult.status === "fulfilled" ? postsResult.value : [];
 
   // Checked once here rather than inside each lookup, so a bad reference is reported
   // a single time instead of once per goal rendered.
@@ -94,8 +89,47 @@ export async function DashboardPage({
     goals: goals.map((goal) => goal.slug),
   });
 
+  // Links, progress and date formatting are resolved here so the explorer stays a
+  // presentation component: the work runs once on the server instead of on every
+  // selection in the browser, and only the rendered fields cross the RSC boundary.
+  const entries: GoalEntry[] = goals.map((goal) => {
+    const progress = getGoalProgress(goal);
+
+    return {
+      slug: goal.slug,
+      name: goal.name,
+      summary: goal.summary,
+      due: formatTargetDate(goal.targetDate),
+      done: progress.done,
+      total: progress.total,
+      percent: progress.percent,
+      todos: (goal.todos ?? []).map((todo) => ({
+        id: todo.id,
+        title: todo.title,
+        description: todo.description,
+        status: todo.status,
+      })),
+      links: [
+        ...projectsForGoal(projects, goal.slug).map((project) => ({
+          id: `project:${project.slug}`,
+          kind: "project" as const,
+          title: project.name,
+          status: project.status,
+          href: project.link?.href,
+        })),
+        ...postsForGoal(posts, goal.slug).map((post) => ({
+          id: `article:${post.slug}`,
+          kind: "article" as const,
+          title: post.title,
+          status: post.status,
+          href: isRoutable(post.status) ? `/blog/${post.slug}` : undefined,
+        })),
+      ],
+    };
+  });
+
   return (
-    <div className="flex min-h-full flex-col overflow-x-hidden bg-background font-mono text-foreground">
+    <div className="flex flex-1 flex-col overflow-x-hidden bg-background font-mono text-foreground">
       <div className="min-h-0 flex-1 px-4 py-5 sm:px-6">
         {authDenied ? (
           <div className="mb-5 rounded-xl border border-primary/35 bg-primary/10 px-4 py-3 text-sm text-primary">
@@ -105,91 +139,52 @@ export async function DashboardPage({
 
         <HeroStrip />
 
-        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
-          <BoardColumn
-            icon={<Zap className="size-3.5" />}
-            title="goals"
-            count={goals.length}
-          >
-            {northStar ? (
-              <NorthStarCard goal={northStar} articles={postsForGoal(posts, northStar.slug)} />
-            ) : (
-              <EmptyColumnNote>No goals yet.</EmptyColumnNote>
-            )}
-            {otherGoals.map((goal) => (
-              <SecondaryGoalCard
-                key={goal.name}
-                goal={goal}
-                articles={postsForGoal(posts, goal.slug)}
-              />
-            ))}
+        <GoalExplorer
+          entries={entries}
+          aside={
+            <ExplorerAside
+              // Posts arrive newest-first from the loader, so slicing takes the most
+              // recent rather than an arbitrary few.
+              posts={posts.slice(0, ASIDE_ARTICLE_CAP)}
+              projects={projects.slice(0, ASIDE_PROJECT_CAP)}
+            />
+          }
+        />
 
-            {recentlyCompleted.length > 0 ? (
-              <>
-                <ColumnSubheading>recently_done</ColumnSubheading>
-                {recentlyCompleted.map((task) => (
-                  <div
-                    key={task.title}
-                    className="rounded-lg border border-border bg-card p-3"
-                  >
-                    <div className="flex items-center gap-2 text-sm">
-                      <Check className="size-3.5 shrink-0 text-success" />
-                      <span className="text-secondary-foreground">
-                        {task.title}
-                      </span>
-                    </div>
-                    <div className="mt-1 pl-5.5 text-[11px] text-subtle">
-                      {task.tag} · {task.at}
-                    </div>
-                  </div>
-                ))}
-              </>
-            ) : null}
-          </BoardColumn>
-
+        {/* <div className="mt-4 grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
           <BoardColumn
             icon={<Rocket className="size-3.5" />}
             title="projects"
             count={projects.length}
           >
             {projects.map((project) => (
-              <Card
-                key={project.name}
-                size="sm"
-                className="gap-3 rounded-lg border border-border bg-card p-4 py-4 shadow-none ring-0"
+              <div
+                key={project.slug}
+                className="rounded-lg border border-border bg-card p-4"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="grid size-8 place-items-center rounded-lg bg-secondary text-primary">
-                    <Rocket className="size-4" />
-                  </div>
-                  <Badge className="border-0 bg-info/15 font-mono text-info">
-                    {project.status}
-                  </Badge>
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold tracking-[-0.02em]">
+                  <h3 className="mb-0 text-sm font-semibold tracking-[-0.02em]">
                     {project.name}
                   </h3>
-                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                    {project.summary}
-                  </p>
+                  <span className="shrink-0 rounded bg-info/15 px-1.5 py-0.5 text-[10px] font-semibold text-info">
+                    {project.status}
+                  </span>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  {project.summary}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
                   {project.stack.map((item) => (
-                    <Badge
+                    <span
                       key={item}
-                      className="border-0 bg-secondary font-mono text-muted-foreground"
+                      className="inline-flex items-center gap-1 rounded bg-secondary px-1.5 py-0.5 text-[11px] text-muted-foreground"
                     >
                       <Code2 className="size-3" />
                       {item}
-                    </Badge>
+                    </span>
                   ))}
                 </div>
-
-                <AttachedArticles
-                  posts={postsForProject(posts, project.slug)}
-                />
-              </Card>
+              </div>
             ))}
           </BoardColumn>
 
@@ -201,7 +196,7 @@ export async function DashboardPage({
             {posts.length > 0 ? (
               posts.map((post) => <PostCard key={post.slug} post={post} />)
             ) : (
-              <EmptyColumnNote>No articles yet.</EmptyColumnNote>
+              <p className="px-1 text-sm text-subtle">No articles yet.</p>
             )}
             <Link
               href="/blog"
@@ -210,18 +205,133 @@ export async function DashboardPage({
               view all articles →
             </Link>
           </BoardColumn>
-        </div>
+        </div> */}
+      </div>
+    </div>
+  );
+}
+
+/** Compact preview of current work, pinned beside the goals on wide screens. */
+function ExplorerAside({
+  projects: shown,
+  posts,
+}: {
+  projects: Project[];
+  posts: PostMeta[];
+}) {
+  return (
+    <div className="flex flex-col gap-5">
+      <div>
+        <AsideLabel>projects</AsideLabel>
+        {shown.length > 0 ? (
+          <ul>
+            {shown.map((project) => (
+              <li key={project.slug}>
+                <AsideRow
+                  icon={<Rocket className="size-3 text-accent-green" />}
+                  title={project.name}
+                  meta={project.status}
+                  href={project.link?.href}
+                />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="px-2 text-[12px] text-subtle">No projects yet.</p>
+        )}
       </div>
 
-      <StatusBar />
+      <div>
+        <AsideLabel>articles</AsideLabel>
+        {posts.length > 0 ? (
+          <ul>
+            {posts.map((post) => (
+              <li key={post.slug}>
+                <AsideRow
+                  icon={<FileText className="size-3 text-info" />}
+                  title={post.title}
+                  // A planned post has no reading time worth quoting, so its status
+                  // is the more honest label.
+                  meta={
+                    isRoutable(post.status) ? post.readingTime : post.status
+                  }
+                  href={
+                    isRoutable(post.status) ? `/blog/${post.slug}` : undefined
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="px-2 text-[12px] text-subtle">No articles yet.</p>
+        )}
+
+        <Link
+          href="/blog"
+          className="mt-2 block px-2 text-[11px] text-subtle transition hover:text-foreground"
+        >
+          view all →
+        </Link>
+      </div>
     </div>
+  );
+}
+
+function AsideLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="px-2 pb-2 pt-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-subtle">
+      {children}
+    </p>
+  );
+}
+
+function AsideRow({
+  icon,
+  title,
+  meta,
+  href,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  meta: string;
+  /** Omitted for things with no page of their own, e.g. a planned article. */
+  href?: string;
+}) {
+  const body = (
+    <>
+      <span className="flex items-start gap-1.5">
+        <span className="mt-0.5 shrink-0">{icon}</span>
+        <span className="line-clamp-2 text-[12px] leading-4 text-secondary-foreground">
+          {title}
+        </span>
+      </span>
+      <span className="mt-1 block pl-4.5 text-[10px] text-subtle">{meta}</span>
+    </>
+  );
+
+  const className = "block rounded-md px-2 py-1.5 transition";
+
+  if (!href) {
+    return <div className={className}>{body}</div>;
+  }
+
+  const external = href.startsWith("http");
+
+  return (
+    <Link
+      href={href}
+      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+      className={`${className} hover:bg-secondary/40`}
+    >
+      {body}
+    </Link>
   );
 }
 
 function HeroStrip() {
   return (
-    <section className="mb-6 flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:p-5">
-      <div className="relative size-16 shrink-0 overflow-hidden rounded-lg border border-border sm:size-20">
+    <section className="mb-4 flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:p-5">
+      <div className="relative size-14 shrink-0 overflow-hidden rounded-lg border border-border sm:size-16">
         <Image
           className="absolute inset-0 h-full w-full object-cover"
           src="/imgs/craig.png"
@@ -241,8 +351,8 @@ function HeroStrip() {
           <span className="text-primary">.</span>
         </h1>
         <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-          Live resume and accountability dashboard: the goal I&apos;m working
-          towards, the projects I&apos;m building, and what I&apos;m reading.
+          Live resume and accountability dashboard: the goals I&apos;m working
+          towards, the projects I&apos;m building, and what I&apos;m writing.
         </p>
       </div>
 
@@ -282,139 +392,3 @@ function BoardColumn({
   );
 }
 
-function ColumnSubheading({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="mt-2 flex items-center gap-2 px-1 text-[11px] font-semibold text-accent-green">
-      {"//"} {children}
-    </div>
-  );
-}
-
-function EmptyColumnNote({ children }: { children: React.ReactNode }) {
-  return <p className="px-1 text-sm text-subtle">{children}</p>;
-}
-
-function NorthStarCard({
-  goal,
-  articles,
-}: {
-  goal: Goal;
-  articles: PostMeta[];
-}) {
-  const progress = getGoalProgress(goal);
-  const previewTodos = (goal.todos ?? []).slice(0, TODO_PREVIEW_CAP);
-
-  return (
-    <GoalDrawer goal={goal} articles={articles}>
-      <Card
-        size="sm"
-        className="cursor-pointer gap-3 rounded-lg border border-primary/30 bg-card p-4 text-left shadow-none ring-0 transition hover:border-primary/50"
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10">
-            <Target className="size-4 text-primary" />
-          </div>
-          <div className="text-right">
-            <span className="text-xl font-extrabold text-primary">
-              {progress.percent}
-              <span className="text-xs text-subtle">%</span>
-            </span>
-            <div className="text-[11px] text-subtle">
-              {progress.done}/{progress.total} · due nov 2026
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h3 className="text-sm font-bold tracking-[-0.02em]">{goal.name}</h3>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">
-            {goal.summary}
-          </p>
-        </div>
-
-        <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
-          <div
-            className="h-full rounded-full bg-primary"
-            style={{ width: `${progress.percent}%` }}
-          />
-        </div>
-
-        {previewTodos.length > 0 ? (
-          <ul className="space-y-1.5 border-t border-dashed border-border pt-3">
-            {previewTodos.map((todo: Todo) => (
-              <li key={todo.id} className="flex items-center gap-2 text-sm">
-                <span className="shrink-0">{todoStatusIcon[todo.status]}</span>
-                <span
-                  className={
-                    todo.status === "Completed"
-                      ? "text-subtle line-through"
-                      : "text-secondary-foreground"
-                  }
-                >
-                  {todo.title}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-      </Card>
-    </GoalDrawer>
-  );
-}
-
-function SecondaryGoalCard({
-  goal,
-  articles,
-}: {
-  goal: Goal;
-  articles: PostMeta[];
-}) {
-  const progress = getGoalProgress(goal);
-
-  return (
-    <GoalDrawer goal={goal} articles={articles}>
-      <Card
-        size="sm"
-        className="cursor-pointer gap-2 rounded-lg border border-border bg-card p-3 text-left shadow-none ring-0 transition hover:border-primary/30"
-      >
-        <div className="flex items-center justify-between gap-2">
-          <span className="flex items-center gap-2 text-sm font-semibold tracking-[-0.02em]">
-            <Target className="size-3.5 shrink-0 text-primary" />
-            {goal.name}
-          </span>
-          <span className="text-sm font-bold text-foreground">
-            {progress.percent}
-            <span className="text-xs text-subtle">%</span>
-          </span>
-        </div>
-        <div className="text-[11px] text-subtle">
-          {progress.done}/{progress.total} done
-        </div>
-      </Card>
-    </GoalDrawer>
-  );
-}
-
-function StatusBar() {
-  return (
-    <footer className="flex items-center gap-4 overflow-x-auto border-t border-border bg-primary px-3 py-1 text-[12px] font-semibold text-primary-foreground">
-      <span className="flex items-center gap-1">
-        <GitBranch className="size-3" />
-        develop
-      </span>
-      <span className="flex items-center gap-1">
-        <OctagonAlert className="size-3" />
-        0
-        <TriangleAlert className="ml-1 size-3" />
-        0
-      </span>
-      <span className="hidden sm:inline">open_to_work: true</span>
-      <span className="ml-auto flex items-center gap-1">
-        <Crosshair className="size-3" />
-        target: nov 2026
-      </span>
-      <span className="hidden sm:inline">TypeScript React</span>
-      <span className="hidden sm:inline">UTF-8</span>
-    </footer>
-  );
-}
