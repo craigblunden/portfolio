@@ -13,6 +13,29 @@ builder.Services.AddOpenApi();
 
 var adminEmail = builder.Configuration["Auth:AdminEmail"];
 
+// Fail at startup rather than on the first authenticated request, where a blank
+// value surfaces as an opaque ArgumentException from inside OAuthOptions.Validate.
+var requiredAuthKeys = new[]
+{
+    "Auth:AdminEmail",
+    "Auth:Google:ClientId",
+    "Auth:Google:ClientSecret",
+};
+
+var missingAuthKeys = requiredAuthKeys
+    .Where(key => string.IsNullOrWhiteSpace(builder.Configuration[key]))
+    .ToList();
+
+if (missingAuthKeys.Count > 0)
+{
+    throw new InvalidOperationException(
+        $"Missing required configuration: {string.Join(", ", missingAuthKeys)}. "
+            + $"Environment is '{builder.Environment.EnvironmentName}'; note that user secrets "
+            + "are only loaded in Development. Set them with 'dotnet user-secrets set \"<key>\" "
+            + "\"<value>\" --project api/api/api.csproj', or as app settings when deployed."
+    );
+}
+
 // Register EF Core with SQLite
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))

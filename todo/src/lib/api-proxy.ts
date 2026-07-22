@@ -27,7 +27,10 @@ export async function proxyApiRequest(
   const backendUrl = `${getApiBaseUrl()}/${backendPath}${incomingUrl.search}`;
 
   const headers = new Headers(request.headers);
-  headers.set("x-forwarded-host", request.headers.get("host") ?? incomingUrl.host);
+  headers.set(
+    "x-forwarded-host",
+    request.headers.get("host") ?? incomingUrl.host,
+  );
   headers.set("x-forwarded-proto", getForwardedProto(request));
   headers.delete("host");
   headers.delete("content-length");
@@ -41,9 +44,18 @@ export async function proxyApiRequest(
     duplex: "half",
   } as RequestInit & { duplex: "half" });
 
+  // Node's fetch transparently decompresses the upstream body, so any encoding
+  // and length headers describing the *compressed* payload no longer match what
+  // we are about to send. Forwarding them verbatim makes the browser fail with
+  // ERR_CONTENT_DECODING_FAILED.
+  const responseHeaders = new Headers(response.headers);
+
+  responseHeaders.delete("content-encoding");
+  responseHeaders.delete("content-length");
+
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
-    headers: response.headers,
+    headers: responseHeaders,
   });
 }

@@ -40,6 +40,12 @@ export function EditorTabsNav() {
       aria-label="Primary"
       className="sticky top-0 z-40 flex items-center border-b border-border bg-card font-mono"
     >
+      <Link
+        href="/"
+        className="flex items-center text-base font-extrabold px-4"
+      >
+        craig<span className="text-[#f0805c]">.dev</span>
+      </Link>
       {tabs.map(({ label, href, icon: Icon, isActive }) => {
         const active = isActive(pathname);
 
@@ -54,11 +60,7 @@ export function EditorTabsNav() {
                 : "flex items-center gap-2 border-r border-border px-4 py-2.5 text-[13px] text-muted-foreground transition hover:bg-background hover:text-foreground"
             }
           >
-            <Icon
-              className={
-                active ? "size-3.5 text-primary" : "size-3.5"
-              }
-            />
+            <Icon className={active ? "size-3.5 text-primary" : "size-3.5"} />
             {label}
           </Link>
         );

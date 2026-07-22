@@ -52,7 +52,8 @@ export async function generateMetadata({
     },
     // Drafts are reachable in dev only, but the tag costs nothing and guards
     // against one ever being served in production by mistake.
-    robots: post.status === "published" ? undefined : { index: false, follow: false },
+    robots:
+      post.status === "published" ? undefined : { index: false, follow: false },
   };
 }
 
@@ -69,13 +70,13 @@ export default async function BlogPostPage({
   }
 
   return (
-    <div className="flex-1 bg-background font-mono text-foreground">
+    <div className="flex-1 bg-background px-4 py-8 font-mono text-foreground sm:px-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: postJsonLdScript(post) }}
       />
 
-      <article className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+      <article className="mx-auto max-w-5xl space-y-10">
         <Link
           href="/blog"
           className="mb-6 inline-flex items-center gap-1.5 text-[11px] text-subtle transition hover:text-foreground"

@@ -78,7 +78,7 @@ export async function DashboardPage({
 
   const goals = mergeGoals(
     goalsResult.status === "fulfilled" ? goalsResult.value.payload : [],
-    goalFixtures,
+    [], // goalFixtures,
   );
   const posts = postsResult.status === "fulfilled" ? postsResult.value : [];
 
@@ -331,13 +331,13 @@ function AsideRow({
 function HeroStrip() {
   return (
     <section className="mb-4 flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:p-5">
-      <div className="relative size-14 shrink-0 overflow-hidden rounded-lg border border-border sm:size-16">
+      <div className="relative size-14 shrink-0 overflow-hidden rounded-lg border border-border sm:size-35">
         <Image
           className="absolute inset-0 h-full w-full object-cover"
           src="/imgs/craig.png"
           alt="Self portrait of Craig Blunden"
-          width={80}
-          height={80}
+          width={150}
+          height={150}
           loading="eager"
         />
       </div>
@@ -391,4 +391,3 @@ function BoardColumn({
     </section>
   );
 }
-
