@@ -70,6 +70,7 @@ jobs:
         with:
           name: node-app
           path: ./todo-package.zip
+          retention-days: 7
 
   deploy:
     runs-on: ubuntu-latest
