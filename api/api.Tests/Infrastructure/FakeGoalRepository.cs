@@ -23,4 +23,16 @@ public class FakeGoalRepository : IGoalRepository
 
     public Task<bool> SlugExistsAsync(string slug) =>
         Task.FromResult(Goals.Any(g => g.Slug == slug));
+
+    public Task DeleteAsync(int id)
+    {
+        var goal = Goals.FirstOrDefault(g => g.Id == id);
+        if (goal == null)
+        {
+            throw new EntityNotFoundException($"Goal with ID {id} was not found.");
+        }
+
+        Goals.Remove(goal);
+        return Task.CompletedTask;
+    }
 }

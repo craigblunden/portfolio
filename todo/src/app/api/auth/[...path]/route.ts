@@ -13,7 +13,10 @@ async function handler(request: NextRequest, context: RouteContext) {
 
   if (path[0] === "logout") {
     const returnUrl = request.nextUrl.searchParams.get("returnUrl") ?? "/";
-    const redirectUrl = new URL(returnUrl.startsWith("/") ? returnUrl : "/", request.url);
+    const redirectUrl = new URL(
+      returnUrl.startsWith("/") ? returnUrl : "/",
+      request.url,
+    );
     const response = NextResponse.redirect(redirectUrl);
 
     response.cookies.set("portfolio_admin", "", {

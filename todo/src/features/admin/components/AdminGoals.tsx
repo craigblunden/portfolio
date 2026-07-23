@@ -21,6 +21,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import {
   createGoal,
+  deleteGoal,
   getAllGoals,
   type Goal,
 } from "@/features/goals/api/goals";
@@ -143,6 +144,60 @@ function CreateGoalDialog() {
             className="bg-accent-green font-mono text-background hover:bg-accent-green/85"
           >
             {isPending ? "Creating…" : "Create"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DeleteGoalDialog({ goalId }: { goalId: number }) {
+  const [open, setOpen] = useState(false);
+  const invalidateGoals = useInvalidateGoals();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => deleteGoal(goalId),
+    onSuccess: async () => {
+      toast.success("Goal deleted.", { richColors: true });
+      await invalidateGoals();
+      setOpen(false);
+    },
+    onError: () => {
+      toast.error("Failed to delete goal.", { richColors: true });
+    },
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Delete goal"
+            className="text-muted-foreground hover:text-red-500"
+          >
+            <Trash className="size-4" />
+          </Button>
+        }
+      />
+      <DialogContent className="border-border bg-card text-foreground">
+        <DialogHeader>
+          <DialogTitle className="font-mono text-foreground">
+            Delete goal
+          </DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground">
+          Are you sure you want to delete this goal? This action cannot be
+          undone.
+        </p>
+        <DialogFooter>
+          <Button
+            onClick={() => mutate()}
+            disabled={isPending}
+            className="bg-red-500 font-mono text-background hover:bg-red-600"
+          >
+            {isPending ? "Deleting…" : "Delete"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -356,11 +411,15 @@ function GoalCard({ goal }: { goal: Goal }) {
 
       {expanded ? (
         <div className="space-y-3 border-t border-border p-4">
-          {goal.summary ? (
-            <p className="text-sm leading-6 text-muted-foreground">
-              {goal.summary}
-            </p>
-          ) : null}
+          <div className="flex justify-between items-center gap-2">
+            {goal.summary ? (
+              <p className="text-sm leading-6 text-muted-foreground">
+                {goal.summary}
+              </p>
+            ) : null}
+
+            <DeleteGoalDialog goalId={goal.id} />
+          </div>
 
           <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
             <div
@@ -408,7 +467,9 @@ export function AdminGoals() {
       )}
 
       <div className="flex flex-col gap-2">
-        {goals?.map((goal) => <GoalCard key={goal.id} goal={goal} />)}
+        {goals?.map((goal) => (
+          <GoalCard key={goal.id} goal={goal} />
+        ))}
       </div>
     </div>
   );

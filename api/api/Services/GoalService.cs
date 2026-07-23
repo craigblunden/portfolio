@@ -33,6 +33,11 @@ public class GoalService : IGoalService
         return ToResponse(goal);
     }
 
+    async Task IGoalService.DeleteAsync(int id)
+    {
+        await _goalRepository.DeleteAsync(id);
+    }
+
     /// <summary>
     /// Determines the slug a new goal is stored with. Slugs are a public contract:
     /// blog frontmatter references them, and the database enforces uniqueness, so an

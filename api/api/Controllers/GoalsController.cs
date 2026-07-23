@@ -26,4 +26,19 @@ public class GoalsController : ControllerBase
         var created = await _goalService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetAll), new { }, created);
     }
+
+    [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await _goalService.DeleteAsync(id);
+            return NoContent();
+        }
+        catch (Exception)
+        {
+            return NotFound();
+        }
+    }
 }

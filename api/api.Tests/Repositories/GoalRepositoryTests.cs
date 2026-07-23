@@ -106,4 +106,24 @@ public class GoalRepositoryTests : IDisposable
         var stored = Assert.Single(page);
         Assert.Single(stored.Todos);
     }
+
+    [Fact]
+    public async Task DeleteAsync_canDeleteGoal()
+    {
+        var goal = NewGoal("reading-habit");
+        goal.Todos.Add(new Todo { Title = "Finish Staff Engineer", GoalId = goal.Id });
+        await AddGoalAsync(goal);
+
+        using var context = _database.CreateContext();
+        var page = await new GoalRepository(context).GetAllAsync(offset: 0, limit: 5);
+
+        var stored = Assert.Single(page);
+        Assert.Single(stored.Todos);
+
+        await new GoalRepository(context).DeleteAsync(goal.Id);
+
+        var updatedPage = await new GoalRepository(context).GetAllAsync(offset: 0, limit: 5);
+
+        Assert.Empty(updatedPage);
+    }
 }

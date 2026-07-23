@@ -27,4 +27,16 @@ public class GoalRepository : IGoalRepository
 
     public async Task<bool> SlugExistsAsync(string slug) =>
         await _context.Goals.AsNoTracking().AnyAsync(g => g.Slug == slug);
+
+    public async Task DeleteAsync(int id)
+    {
+        var goal = await _context.Goals.FindAsync(id);
+        if (goal == null)
+        {
+            throw new EntityNotFoundException($"Goal with ID {id} was not found.");
+        }
+
+        _context.Goals.Remove(goal);
+        await _context.SaveChangesAsync();
+    }
 }

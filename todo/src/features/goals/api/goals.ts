@@ -120,3 +120,14 @@ export const createGoal = async (input: CreateGoalInput) => {
 
   return (await res.json()) as Goal;
 };
+
+export const deleteGoal = async (goalId: number) => {
+  const res = await fetch(`${getApiUrl()}/goals/${goalId}`, {
+    method: "DELETE",
+    credentials: "same-origin",
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to delete goal with ID ${goalId}.`);
+  }
+};
