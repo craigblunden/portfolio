@@ -2,12 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 // Code2 and PenLine are used only by the projects/articles strip that is currently
 // commented out below; kept so it can be restored by uncommenting alone.
-import { Code2, Crosshair, FileText, PenLine, Rocket } from "lucide-react";
-import { goals as goalFixtures } from "@/features/dashboard/data/dashboardData";
+import { Crosshair, FileText, Rocket } from "lucide-react";
 import { projects, type Project } from "@/features/dashboard/data/projectsData";
 import { loadAllPosts, type PostMeta } from "@/features/blog/api/posts";
 import { isRoutable } from "@/features/blog/lib/postStatus";
-import { PostCard } from "@/features/blog/components/PostCard";
 import {
   postsForGoal,
   validateAttachments,
