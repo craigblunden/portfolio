@@ -331,7 +331,7 @@ function AsideRow({
 function HeroStrip() {
   return (
     <section className="mb-4 flex flex-col gap-4 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:p-5">
-      <div className="relative size-14 shrink-0 overflow-hidden rounded-lg border border-border sm:size-35">
+      <div className="relative size-50 sm:size-35 shrink-0 overflow-hidden rounded-lg border border-border self-center">
         <Image
           className="absolute inset-0 h-full w-full object-cover"
           src="/imgs/craig.png"

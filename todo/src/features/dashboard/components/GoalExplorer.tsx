@@ -220,10 +220,6 @@ export function GoalExplorer({
             </button>
           );
         })}
-
-        <p className="mt-auto hidden px-2 pt-4 text-[11px] text-faint lg:block">
-          ↑↓ to navigate
-        </p>
       </div>
 
       <GoalPanel entry={selected} />

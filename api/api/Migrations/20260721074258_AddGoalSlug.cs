@@ -17,6 +17,11 @@ namespace api.Migrations
                 nullable: false,
                 defaultValue: "");
 
+            migrationBuilder.Sql("""
+                UPDATE "Goals"
+                SET "Slug" = 'goal-' || "Id";
+                """);
+
             migrationBuilder.CreateIndex(
                 name: "IX_Goals_Slug",
                 table: "Goals",
