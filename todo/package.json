@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "validate:content": "vitest run src/features/blog/lib/__tests__/contentIntegrity.test.ts",
+    "build": "pnpm validate:content && next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",

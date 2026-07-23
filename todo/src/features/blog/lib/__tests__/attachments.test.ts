@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { postsForGoal, postsForProject, validateAttachments } from "../attachments";
+import {
+  assertProjectRefsResolve,
+  findUnknownProjectRefs,
+  postsForGoal,
+  postsForProject,
+  warnUnknownAttachments,
+} from "../attachments";
 
 const post = (slug: string, goals: string[] = [], projects: string[] = []) => ({
   slug,
@@ -16,30 +22,63 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("validateAttachments", () => {
-  it("accepts posts whose references all resolve", () => {
+describe("findUnknownProjectRefs", () => {
+  it("returns an empty list when every project reference resolves", () => {
     const posts = [post("a", ["land-next-senior-role"], ["portfolio-dashboard"]), post("b")];
 
-    expect(() => validateAttachments(posts, KNOWN)).not.toThrow();
+    expect(findUnknownProjectRefs(posts, KNOWN.projects)).toEqual([]);
   });
 
-  // Static data, always available at build time — a dangling reference is a typo.
-  it("throws on an unknown project slug", () => {
-    expect(() => validateAttachments([post("a", [], ["no-such-project"])], KNOWN)).toThrow(
-      /no-such-project/,
-    );
+  it("returns a { post, project } entry for each dangling reference", () => {
+    const posts = [post("a", [], ["portfolio-dashboard", "nope"]), post("b", [], ["gone"])];
+
+    expect(findUnknownProjectRefs(posts, KNOWN.projects)).toEqual([
+      { post: "a", project: "nope" },
+      { post: "b", project: "gone" },
+    ]);
+  });
+});
+
+describe("assertProjectRefsResolve", () => {
+  it("does not throw when every project reference resolves", () => {
+    const posts = [post("a", [], ["portfolio-dashboard"]), post("b")];
+
+    expect(() => assertProjectRefsResolve(posts, KNOWN.projects)).not.toThrow();
   });
 
-  it("names the offending post in the error", () => {
-    expect(() => validateAttachments([post("my-post", [], ["nope"])], KNOWN)).toThrow(/my-post/);
+  // Static data, bundled at build time — a dangling reference is a typo that should
+  // fail the deploy loudly rather than 500 a live render.
+  it("throws naming the unknown project", () => {
+    expect(() =>
+      assertProjectRefsResolve([post("a", [], ["no-such-project"])], KNOWN.projects),
+    ).toThrow(/no-such-project/);
   });
 
-  // Goals come from the API, which the build tolerates being down. Throwing here
-  // would mean an API outage breaks the frontend build.
+  it("throws naming the offending post", () => {
+    expect(() =>
+      assertProjectRefsResolve([post("my-post", [], ["nope"])], KNOWN.projects),
+    ).toThrow(/my-post/);
+  });
+});
+
+describe("warnUnknownAttachments", () => {
+  // The build gate already guarantees projects resolve, so a stray one at runtime is
+  // a warning and a skipped link — never a thrown error that takes down the render.
+  it("warns rather than throwing on an unknown project slug", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    expect(() =>
+      warnUnknownAttachments([post("a", [], ["no-such-project"])], KNOWN),
+    ).not.toThrow();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("no-such-project"));
+  });
+
+  // Goals come from the API, which the frontend tolerates being down. Throwing here
+  // would let an API outage break the render.
   it("warns rather than throwing on an unknown goal slug", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    expect(() => validateAttachments([post("a", ["no-such-goal"])], KNOWN)).not.toThrow();
+    expect(() => warnUnknownAttachments([post("a", ["no-such-goal"])], KNOWN)).not.toThrow();
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("no-such-goal"));
   });
 
@@ -47,7 +86,7 @@ describe("validateAttachments", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
     expect(() =>
-      validateAttachments([post("a", ["any-goal"])], { projects: KNOWN.projects }),
+      warnUnknownAttachments([post("a", ["any-goal"])], { projects: KNOWN.projects }),
     ).not.toThrow();
     expect(warn).not.toHaveBeenCalled();
   });
@@ -57,7 +96,7 @@ describe("validateAttachments", () => {
   it("warns once per bad reference, not once per lookup", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    validateAttachments([post("a", ["no-such-goal"])], KNOWN);
+    warnUnknownAttachments([post("a", ["no-such-goal"])], KNOWN);
 
     expect(warn).toHaveBeenCalledTimes(1);
   });

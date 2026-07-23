@@ -8,7 +8,7 @@ import { loadAllPosts, type PostMeta } from "@/features/blog/api/posts";
 import { isRoutable } from "@/features/blog/lib/postStatus";
 import {
   postsForGoal,
-  validateAttachments,
+  warnUnknownAttachments,
 } from "@/features/blog/lib/attachments";
 import {
   formatTargetDate,
@@ -80,9 +80,11 @@ export async function DashboardPage({
   );
   const posts = postsResult.status === "fulfilled" ? postsResult.value : [];
 
-  // Checked once here rather than inside each lookup, so a bad reference is reported
-  // a single time instead of once per goal rendered.
-  validateAttachments(posts, {
+  // Warn (never throw) about unresolved references, once here rather than inside each
+  // lookup. Project references are guaranteed by the build gate — the content-integrity
+  // test that `pnpm build` runs — so this render stays resilient even if that gate is
+  // bypassed; unknown goals are inherently runtime, since goals come from the API.
+  warnUnknownAttachments(posts, {
     projects: projects.map((project) => project.slug),
     goals: goals.map((goal) => goal.slug),
   });
