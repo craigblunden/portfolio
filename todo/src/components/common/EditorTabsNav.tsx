@@ -44,7 +44,7 @@ export function EditorTabsNav() {
         href="/"
         className="flex items-center text-base font-extrabold px-4 py-2.5 sm:py-0"
       >
-        craig<span className="text-[#f0805c]">.dev</span>
+        craig<span className="text-[#f0805c]">blunden</span>
       </Link>
       <div className="flex w-full flex-row items-stretch justify-evenly sm:w-auto">
         {tabs.map(({ label, href, icon: Icon, isActive }) => {
