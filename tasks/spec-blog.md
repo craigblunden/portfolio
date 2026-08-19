@@ -10,7 +10,7 @@
 
 These were confirmed during scoping. Listed so future readers know what was deliberate:
 
-1. Posts are **files in the repo**, authored in an editor and committed via git — not rows in the .NET API, and not authored through the admin UI. (Goals gain a `Slug` column so posts can *reference* them, but posts themselves never enter the database.)
+1. Posts are **files in the repo**, authored in an editor and committed via git — not rows in the .NET API, and not authored through the admin UI. (Goals gain a `Slug` column so posts can _reference_ them, but posts themselves never enter the database.)
 2. The blog is **single-author**. No author field, no bylines, no per-author archive pages.
 3. Content is **plain markdown**, not MDX. No React components inside posts.
 4. Posts are rendered at **build time** (SSG). Nothing reads the filesystem at request time.
@@ -26,11 +26,11 @@ Craig writes markdown articles documenting engineering and career learnings. Tod
 
 **User stories:**
 
-- *As the author*, I add a `.md` file to `content/blog/`, commit it, and it appears on the site — no database write, no admin form, no deploy step beyond the normal build.
-- *As the author*, I mark a post as attached to a goal or project, and it surfaces on that goal's drawer and that project's card without me editing either.
-- *As the author*, I can commit a half-finished post and see it locally while it stays invisible in production.
-- *As a visitor (recruiter, hiring manager, peer)*, I browse `/blog` to see what Craig has been learning, and open any article at a clean shareable URL.
-- *As a visitor sharing a link*, pasting `/blog/<slug>` into Slack or LinkedIn produces a title, description, and image rather than a bare URL.
+- _As the author_, I add a `.md` file to `content/blog/`, commit it, and it appears on the site — no database write, no admin form, no deploy step beyond the normal build.
+- _As the author_, I mark a post as attached to a goal or project, and it surfaces on that goal's drawer and that project's card without me editing either.
+- _As the author_, I can commit a half-finished post and see it locally while it stays invisible in production.
+- _As a visitor (recruiter, hiring manager, peer)_, I browse `/blog` to see what Craig has been learning, and open any article at a clean shareable URL.
+- _As a visitor sharing a link_, pasting `/blog/<slug>` into Slack or LinkedIn produces a title, description, and image rather than a bare URL.
 
 **Why it matters:** the site's pitch is "building in public" during a job search. An articles column with three unwritten placeholders currently undercuts that claim. Real posts are the proof.
 
@@ -47,17 +47,17 @@ Existing (unchanged):
 
 New dependencies (**requires approval — see Boundaries**):
 
-| Package | Purpose |
-|---|---|
-| `gray-matter` | Split YAML frontmatter from markdown body |
-| `unified` | Pipeline runner for the transforms below |
-| `remark-parse` | Markdown → mdast |
-| `remark-gfm` | Tables, strikethrough, task lists, autolinks |
-| `remark-rehype` | mdast → hast |
-| `rehype-slug` | Stable `id` on every heading |
-| `rehype-autolink-headings` | Anchor links on headings |
-| `rehype-pretty-code` | Shiki-based build-time syntax highlighting |
-| `rehype-stringify` | hast → HTML string |
+| Package                    | Purpose                                      |
+| -------------------------- | -------------------------------------------- |
+| `gray-matter`              | Split YAML frontmatter from markdown body    |
+| `unified`                  | Pipeline runner for the transforms below     |
+| `remark-parse`             | Markdown → mdast                             |
+| `remark-gfm`               | Tables, strikethrough, task lists, autolinks |
+| `remark-rehype`            | mdast → hast                                 |
+| `rehype-slug`              | Stable `id` on every heading                 |
+| `rehype-autolink-headings` | Anchor links on headings                     |
+| `rehype-pretty-code`       | Shiki-based build-time syntax highlighting   |
+| `rehype-stringify`         | hast → HTML string                           |
 
 All are build-time only and add nothing to the client bundle — the pipeline runs in server components during `next build`, and the browser receives plain HTML.
 
@@ -67,14 +67,14 @@ Backend (ASP.NET Core 10, EF Core, SQLite):
 
 New test project `api/api.Tests/`:
 
-| Package | Purpose |
-|---|---|
-| `xunit.v3` | Test framework — current xUnit line |
-| `xunit.runner.visualstudio` | Test discovery for `dotnet test` and IDEs |
-| `Microsoft.NET.Test.Sdk` | Test host |
-| `Microsoft.AspNetCore.Mvc.Testing` | `WebApplicationFactory` for endpoint tests |
-| `Microsoft.EntityFrameworkCore.Sqlite` | SQLite in-memory for repository tests |
-| `NSubstitute` | Interface substitutes for service-layer tests |
+| Package                                | Purpose                                       |
+| -------------------------------------- | --------------------------------------------- |
+| `xunit.v3`                             | Test framework — current xUnit line           |
+| `xunit.runner.visualstudio`            | Test discovery for `dotnet test` and IDEs     |
+| `Microsoft.NET.Test.Sdk`               | Test host                                     |
+| `Microsoft.AspNetCore.Mvc.Testing`     | `WebApplicationFactory` for endpoint tests    |
+| `Microsoft.EntityFrameworkCore.Sqlite` | SQLite in-memory for repository tests         |
+| `NSubstitute`                          | Interface substitutes for service-layer tests |
 
 **Deliberately not used:**
 
@@ -220,13 +220,12 @@ api.Tests/
 title: "Refactoring a todo app into a personal operating system"
 description: "Notes on reshaping a CRUD app into something that communicates product thinking and engineering taste."
 date: 2026-07-21
-updated: 2026-07-24          # optional
-status: published            # published | draft | planned
-tags: [engineering, nextjs]  # optional, default []
-goals: [land-next-senior-role]    # optional, default [] — matches Goal.Slug
-projects: [portfolio-dashboard]   # optional, default [] — matches Project.slug
+updated: 2026-07-24 # optional
+status: published # published | draft | planned
+tags: [engineering, nextjs] # optional, default []
+goals: [land-next-senior-role] # optional, default [] — matches Goal.Slug
+projects: [portfolio-dashboard] # optional, default [] — matches Project.slug
 ---
-
 Body markdown starts here.
 ```
 
@@ -249,7 +248,7 @@ Concretely this means:
 
 - The attachment section on a goal or project renders **only when at least one article exists**. No empty state, no "no articles yet" placeholder, no dashed outline — a goal without writing should look exactly as it does today.
 - Nothing warns, lints, or nags about goals lacking articles. Absence is not a defect.
-- The framing is a lightweight *"Read more"* affordance, not a content section with a heading and chrome.
+- The framing is a lightweight _"Read more"_ affordance, not a content section with a heading and chrome.
 
 This also justifies the warn-don't-fail stance on unresolvable goal slugs below: attachments are a supplementary link, not load-bearing data. A missing one degrades gracefully to the page as it exists today.
 
@@ -257,11 +256,11 @@ There is deliberately **no `slug` field**. The slug is derived from the filename
 
 ### Status behaviour
 
-| `status` | `/blog` index | `/blog/<slug>` route | Homepage column | Sitemap |
-|---|---|---|---|---|
-| `published` | yes | yes | yes, clickable | yes |
-| `draft` | dev only | dev only | dev only, clickable | no |
-| `planned` | no | **never** | yes, not clickable | no |
+| `status`    | `/blog` index | `/blog/<slug>` route | Homepage column     | Sitemap |
+| ----------- | ------------- | -------------------- | ------------------- | ------- |
+| `published` | yes           | yes                  | yes, clickable      | yes     |
+| `draft`     | dev only      | dev only             | dev only, clickable | no      |
+| `planned`   | no            | **never**            | yes, not clickable  | no      |
 
 `planned` posts are placeholder cards for articles not yet written — the current `blogsData.ts` behaviour, preserved. They need only frontmatter; the body may be empty.
 
@@ -426,7 +425,7 @@ public static class SlugGenerator
 - Goal slugs are **immutable once assigned**. Renaming a goal does not regenerate its slug — committed markdown references it. Changing a slug is a manual, deliberate act requiring a matching content edit.
 
 - Everything under `features/blog/api` and `features/blog/lib` is **server-only**. No `"use client"` anywhere in the loading path — `node:fs` must never be reachable from a client component.
-- Rendered post HTML is trusted (it is our own committed content) and injected with `dangerouslySetInnerHTML`. This is safe *only* because content is repo-authored; if content ever becomes user-submitted, this decision must be revisited.
+- Rendered post HTML is trusted (it is our own committed content) and injected with `dangerouslySetInnerHTML`. This is safe _only_ because content is repo-authored; if content ever becomes user-submitted, this decision must be revisited.
 - Prose styling is hand-rolled against the existing design tokens rather than adding `@tailwindcss/typography` — one fewer dependency, and the site's mono/editor aesthetic doesn't match the plugin's defaults.
 
 ---
@@ -457,17 +456,17 @@ Test naming: `Method_Scenario_ExpectedResult`. One assert concept per test.
 
 **Tier 1 — `SlugGeneratorTests` (pure functions, no I/O).** The bulk of the value, driven by `[Theory]`/`[InlineData]`:
 
-| Input | Expected slug |
-|---|---|
+| Input                                   | Expected slug                           |
+| --------------------------------------- | --------------------------------------- |
 | `Land the next senior engineering role` | `land-the-next-senior-engineering-role` |
-| `Keep a steady reading habit` | `keep-a-steady-reading-habit` |
-| `C# & .NET: deep dive!` | `c-net-deep-dive` |
-| `Café résumé` | `cafe-resume` |
-| `  leading and trailing  ` | `leading-and-trailing` |
-| `multiple   inner   spaces` | `multiple-inner-spaces` |
-| `already-kebab-case` | `already-kebab-case` |
-| `!!!` | `goal` |
-| `""` | `goal` |
+| `Keep a steady reading habit`           | `keep-a-steady-reading-habit`           |
+| `C# & .NET: deep dive!`                 | `c-net-deep-dive`                       |
+| `Café résumé`                           | `cafe-resume`                           |
+| `  leading and trailing  `              | `leading-and-trailing`                  |
+| `multiple   inner   spaces`             | `multiple-inner-spaces`                 |
+| `already-kebab-case`                    | `already-kebab-case`                    |
+| `!!!`                                   | `goal`                                  |
+| `""`                                    | `goal`                                  |
 
 Plus `EnsureUniqueAsync`: free slug returned unchanged; one collision → `-2`; consecutive collisions → `-3`; every output matches the slug format regex.
 
@@ -533,7 +532,7 @@ Frontend and backend suites run independently; there is no combined command.
 **Ask first:**
 
 - Adding any dependency beyond those approved in the Tech Stack tables (nine frontend, six backend test).
-- Any backend change *beyond* the `Goal.Slug` column, its migration, the test project, and the `public partial class Program` line — those are approved; a second schema change is not.
+- Any backend change _beyond_ the `Goal.Slug` column, its migration, the test project, and the `public partial class Program` line — those are approved; a second schema change is not.
 - Widening test scope to Todos or Auth. The harness is shared, but that is separate work.
 - Changing `next.config.ts`, particularly `output: "standalone"`.
 - Adding `@tailwindcss/typography` or any other Tailwind plugin.
@@ -560,18 +559,18 @@ Each is independently checkable.
 5. A `status: draft` post is visible in `pnpm dev` and is absent from the production index, its URL, and the sitemap.
 6. A `status: planned` post renders as a non-clickable card on the homepage and has no route.
 7. A post with `goals: [<slug>]` appears in that goal's drawer; a post with `projects: [<slug>]` appears on that project's card.
-7a. A goal with **no** attached articles renders exactly as it does today — no heading, no empty state, no placeholder. Same for projects.
-7b. A goal with **several** attached articles lists all of them.
+   7a. A goal with **no** attached articles renders exactly as it does today — no heading, no empty state, no placeholder. Same for projects.
+   7b. A goal with **several** attached articles lists all of them.
 8. Invalid frontmatter fails `pnpm build` with a message naming the file and the field.
-9. An unknown project slug in `projects` fails the build; a malformed slug fails the build; an unknown *goal* slug warns without failing.
-9a. `GET /api/goals` returns a `slug` on every goal, and every pre-existing goal row has a non-empty unique slug after migration.
-9b. Creating a goal named `C# & .NET: deep dive!` yields slug `c-net-deep-dive`; creating a second goal with the same name yields `c-net-deep-dive-2`.
-9c. The frontend build succeeds with the API stopped, falling back to fixtures and skipping goal-attachment resolution.
+9. An unknown project slug in `projects` fails the build; a malformed slug fails the build; an unknown _goal_ slug warns without failing.
+   9a. `GET /api/goals` returns a `slug` on every goal, and every pre-existing goal row has a non-empty unique slug after migration.
+   9b. Creating a goal named `C# & .NET: deep dive!` yields slug `c-net-deep-dive`; creating a second goal with the same name yields `c-net-deep-dive-2`.
+   9c. The frontend build succeeds with the API stopped, falling back to fixtures and skipping goal-attachment resolution.
 10. `sitemap.xml` and `robots.txt` are served and contain only published content.
 11. Each post page carries a unique title, meta description, canonical URL, OG tags, and valid `BlogPosting` JSON-LD.
 12. `pnpm build && pnpm start` serves posts correctly — proving standalone output includes what it needs.
 13. `pnpm lint`, `pnpm typecheck`, and `pnpm test --run` all pass; `dotnet test` passes from `api/`.
-13a. A `GoalRepositoryTests` case proves a duplicate slug insert throws — the unique index is real, not assumed.
+    13a. A `GoalRepositoryTests` case proves a duplicate slug insert throws — the unique index is real, not assumed.
 14. `blogsData.ts` no longer exists and nothing imports it.
 15. The homepage articles column looks unchanged apart from now linking to real posts.
 
@@ -579,31 +578,31 @@ Each is independently checkable.
 
 ## Risks
 
-**1. `output: "standalone"` may not package `content/`.** — *Highest risk.*
-Standalone builds copy only files Next's tracer can see. Because posts are read during SSG and baked into HTML, runtime file access shouldn't be needed — but any accidental dynamic path defeats this, and it fails *only in production*.
-*Mitigation:* verify with `pnpm build && pnpm start` as a task-level gate, not at the end. If it fails, add `outputFileTracingIncludes` for `content/**` — a `next.config.ts` change, which is **ask first**.
+**1. `output: "standalone"` may not package `content/`.** — _Highest risk._
+Standalone builds copy only files Next's tracer can see. Because posts are read during SSG and baked into HTML, runtime file access shouldn't be needed — but any accidental dynamic path defeats this, and it fails _only in production_.
+_Mitigation:_ verify with `pnpm build && pnpm start` as a task-level gate, not at the end. If it fails, add `outputFileTracingIncludes` for `content/**` — a `next.config.ts` change, which is **ask first**.
 
 **2. The `AddGoalSlug` backfill can fail on the unique index.**
 Existing goal rows need slugs. SQLite offers only `lower()` and `replace()`, so an in-SQL slugify leaves punctuation intact and two names differing only by punctuation would produce duplicates — and the unique index creation then fails partway through the migration.
-*Mitigation:* the migration runs in three explicit steps — add the column with a `''` default, backfill via `UPDATE`, then create the unique index. Inspect `dotnet ef migrations script` output and the existing rows *before* applying. The current dataset is two fixture-scale goals, so this is a quick eyeball. Backfilled slugs are then manually reviewed and corrected to read well, since SQL slugification is approximate. If a duplicate does appear, resolve it by hand before the index step.
-*Rollback:* `dotnet ef database update <PreviousMigration>`.
-*Additionally:* `GoalRepositoryTests` asserts migrations apply cleanly to an empty SQLite database, catching a malformed migration before it touches the dev DB.
+_Mitigation:_ the migration runs in three explicit steps — add the column with a `''` default, backfill via `UPDATE`, then create the unique index. Inspect `dotnet ef migrations script` output and the existing rows _before_ applying. The current dataset is two fixture-scale goals, so this is a quick eyeball. Backfilled slugs are then manually reviewed and corrected to read well, since SQL slugification is approximate. If a duplicate does appear, resolve it by hand before the index step.
+_Rollback:_ `dotnet ef database update <PreviousMigration>`.
+_Additionally:_ `GoalRepositoryTests` asserts migrations apply cleanly to an empty SQLite database, catching a malformed migration before it touches the dev DB.
 
 **2b. `WebApplicationFactory` may not boot the host.**
 `Program.cs` calls `MigrateAsync()` at startup and reads Google auth configuration. An unconfigured test host will throw before serving a request, and the failure looks like a test-infrastructure bug rather than a config one.
-*Mitigation:* `TestWebApplicationFactory` replaces the `AppDbContext` registration with SQLite in-memory and supplies stub auth config. Tier 4 is deliberately one thin smoke test — if it fights back, the coverage it provides is already carried by Tiers 1–3, and it can be dropped without weakening the suite.
+_Mitigation:_ `TestWebApplicationFactory` replaces the `AppDbContext` registration with SQLite in-memory and supplies stub auth config. Tier 4 is deliberately one thin smoke test — if it fights back, the coverage it provides is already carried by Tiers 1–3, and it can be dropped without weakening the suite.
 
 **3. Frontmatter dates and timezones.**
 `new Date("2026-07-21")` parses as UTC midnight and can render as the previous day in negative-offset timezones.
-*Mitigation:* treat dates as opaque strings for sorting (`localeCompare` on ISO strings sorts correctly) and format explicitly with `date-fns`, already a dependency. Covered by a test.
+_Mitigation:_ treat dates as opaque strings for sorting (`localeCompare` on ISO strings sorts correctly) and format explicitly with `date-fns`, already a dependency. Covered by a test.
 
 **4. Dependency count.**
 Nine packages for what is "render some markdown" is a real cost.
-*Mitigation:* all are build-time only and add nothing to the client bundle. If the count is unacceptable, the fallback is `remark` + `remark-html` alone, losing syntax highlighting and heading anchors.
+_Mitigation:_ all are build-time only and add nothing to the client bundle. If the count is unacceptable, the fallback is `remark` + `remark-html` alone, losing syntax highlighting and heading anchors.
 
 **5. Slug permanence.**
 Renaming a file after publishing breaks every shared link and the post's search ranking.
-*Mitigation:* documented in Boundaries as ask-first. If a rename becomes necessary, it needs a redirect in `next.config.ts`.
+_Mitigation:_ documented in Boundaries as ask-first. If a rename becomes necessary, it needs a redirect in `next.config.ts`.
 
 ---
 
