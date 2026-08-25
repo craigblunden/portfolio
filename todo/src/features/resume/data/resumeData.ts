@@ -39,7 +39,7 @@ export type Role = {
 export const heroRole: Role = {
   company: "Repeat.gg",
   title: "Full Stack Software Engineer",
-  period: "2019 — Present",
+  period: "Aug 2020 — Present",
   location: "Fortitude Valley, Brisbane · Sony Interactive Entertainment",
   summary:
     "Building a competitive gaming platform used by tens of thousands of daily active users, where gamers compete in tournaments and earn rewards across their favourite titles. Joined pre-acquisition as part of a small startup team and stayed on through the acquisition by Sony Interactive Entertainment, now sitting inside the wider PlayStation family.",
@@ -137,7 +137,7 @@ export const priorRoles: Role[] = [
   {
     company: "Flight Centre",
     title: "Front-end Engineer",
-    period: "Oct 2018 — 2019",
+    period: "Oct 2018 — Aug 2020",
     summary:
       "Worked on large-scale global travel booking products across AU, NZ and CA, helping transform a legacy platform into a full-stack micro frontend architecture.",
     highlights: [
