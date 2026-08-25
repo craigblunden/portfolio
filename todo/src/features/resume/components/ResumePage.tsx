@@ -5,6 +5,7 @@ import {
   Briefcase,
   Code2,
   Contact,
+  Download,
   Mail,
   MapPin,
   Phone,
@@ -27,6 +28,7 @@ export function ResumePage() {
     <div className="flex-1 bg-background px-4 py-8 font-mono text-foreground sm:px-8">
       <div className="mx-auto max-w-5xl space-y-10">
         <Header />
+        <ResumeDownload />
         <HeroRoleCard role={heroRole} />
         <HighlightStrip />
         <ExperienceSection roles={priorRoles} />
@@ -102,6 +104,20 @@ function ContactLink({
       <Icon className="size-3.5" />
       <span>{label}</span>
     </Link>
+  );
+}
+
+function ResumeDownload() {
+  return (
+    <a
+      href="/resume/Craig_Blunden_Resume_2026.pdf"
+      download
+      className="group inline-flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm transition hover:border-primary/60 hover:bg-primary/10"
+    >
+      <Download className="size-4 text-primary" />
+      <span className="font-semibold text-foreground">Download resume</span>
+      <span className="text-muted-foreground">// PDF</span>
+    </a>
   );
 }
 

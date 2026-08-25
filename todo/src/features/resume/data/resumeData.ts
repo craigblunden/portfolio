@@ -130,7 +130,6 @@ export const heroRole: Role = {
     "Cypress",
     "Playwright",
   ],
-  link: { label: "repeat.gg", href: "https://repeat.gg" },
 };
 
 export const priorRoles: Role[] = [
