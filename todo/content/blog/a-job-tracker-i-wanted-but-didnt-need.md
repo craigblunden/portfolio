@@ -4,6 +4,8 @@ description: "A weekend idea about tracking job applications turned into a multi
 date: 2026-09-15
 status: published
 tags: [engineering, ai, career]
+goals: [ship-side-projects, write-in-public]
+projects: [trail-to-offer]
 ---
 
 I'm applying for my next role with a target start date of November 16th and so far this early in the process I've been selective about what I go for.

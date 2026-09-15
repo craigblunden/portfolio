@@ -27,14 +27,14 @@ export const projects: Project[] = [
   //   link: { label: "github", href: "https://github.com/craigblunden" },
   //   goals: ["land-next-senior-role", "ship-side-projects"],
   // },
-  // PLACEHOLDER — replace with a real current project before launch.
   {
-    slug: "project-placeholder",
-    name: "project placeholder",
+    slug: "trail-to-offer",
+    name: "trail to offer",
     summary:
-      "Swap this entry for whatever you're actually building next — keep the one-liner focused on why it matters.",
-    status: "designing",
-    stack: ["TypeScript"],
-    goals: ["ship-side-projects"],
+      "A job application tracker for my own search: every role on one board, with the resume and cover letter that went out with it and the people attached to it. Multi-tenant on Supabase, written end to end with Claude Code.",
+    status: "active",
+    stack: ["Next.js", "TypeScript", "Supabase", "Prisma", "Claude API"],
+    link: { label: "trailtooffer.com", href: "https://trailtooffer.com" },
+    goals: ["ship-side-projects", "land-next-senior-role"],
   },
 ];
