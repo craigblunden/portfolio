@@ -16,7 +16,6 @@ public class TodosController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll(int offset = 0, int limit = 5)
     {
-        Console.WriteLine($"GetAll called with offset={offset} and limit={limit}");
         return Ok(await _todoService.GetAllAsync(offset, limit));
     }
 

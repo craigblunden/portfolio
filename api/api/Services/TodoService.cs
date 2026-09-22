@@ -21,10 +21,12 @@ public class TodoService : ITodoService
 
     async Task<PagedResponseDto<TodoResponseDto>> ITodoService.GetAllAsync(int offset, int limit)
     {
-        var todos = await _todoRepository.GetAllAsync(offset, limit);
+        var (safeOffset, safeLimit) = PageBounds.Clamp(offset, limit);
+
+        var todos = await _todoRepository.GetAllAsync(safeOffset, safeLimit);
         var totalCount = await _todoRepository.GetTotalCountAsync();
-        var pageNumber = offset / limit + 1;
-        var totalPages = (int)Math.Ceiling(totalCount / (double)limit);
+        var pageNumber = safeOffset / safeLimit + 1;
+        var totalPages = (int)Math.Ceiling(totalCount / (double)safeLimit);
 
         return new PagedResponseDto<TodoResponseDto>(
             todos.Select(ToResponse),

@@ -1,4 +1,5 @@
 import { proxyApiRequest } from "@/lib/api-proxy";
+import { safeReturnPath } from "@/lib/safe-redirect";
 import { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -12,11 +13,8 @@ async function handler(request: NextRequest, context: RouteContext) {
   const { path } = await context.params;
 
   if (path[0] === "logout") {
-    const returnUrl = request.nextUrl.searchParams.get("returnUrl") ?? "/";
-    const redirectUrl = new URL(
-      returnUrl.startsWith("/") ? returnUrl : "/",
-      request.url,
-    );
+    const returnUrl = request.nextUrl.searchParams.get("returnUrl");
+    const redirectUrl = new URL(safeReturnPath(returnUrl), request.url);
     const response = NextResponse.redirect(redirectUrl);
 
     response.cookies.set("portfolio_admin", "", {

@@ -57,13 +57,46 @@ public class AuthController : ControllerBase
 
     private string GetAdminEmail() => _configuration["Auth:AdminEmail"]!;
 
+    /// <summary>
+    /// Reduces a caller-supplied return URL to a path on this site, or "/".
+    ///
+    /// "starts with a slash" is not sufficient on its own. Three different inputs
+    /// all reach another origin while passing that test:
+    ///
+    ///   //evil.com        protocol-relative — inherits the current scheme
+    ///   /\evil.com        a backslash in the authority position reads as a slash
+    ///   /&lt;TAB&gt;/evil.com  tab, newline and CR are stripped when the URL is
+    ///                     parsed, re-forming "//evil.com" after the check ran
+    ///
+    /// All three are neutralised before the leading-slash test rather than after,
+    /// otherwise this endpoint becomes an open redirect — a link that reads as
+    /// this domain but lands the visitor somewhere else.
+    ///
+    /// The mirror of this logic is safeReturnPath in todo/src/lib/safe-redirect.ts.
+    /// Keep the two in step; they previously drifted, and only this copy was safe.
+    /// </summary>
     private static string GetSafeReturnUrl(string? returnUrl)
     {
-        if (string.IsNullOrWhiteSpace(returnUrl) || !returnUrl.StartsWith('/'))
+        if (string.IsNullOrWhiteSpace(returnUrl))
         {
             return "/";
         }
 
-        return returnUrl.StartsWith("//", StringComparison.Ordinal) ? "/" : returnUrl;
+        var trimmed = returnUrl.Trim();
+
+        // Mirror what a URL parser does to the string before judging it: drop the
+        // characters it ignores, and treat "\" as the "/" it will be read as.
+        var normalised = trimmed
+            .Replace("\t", string.Empty)
+            .Replace("\n", string.Empty)
+            .Replace("\r", string.Empty)
+            .Replace('\\', '/');
+
+        if (!normalised.StartsWith('/') || normalised.StartsWith("//", StringComparison.Ordinal))
+        {
+            return "/";
+        }
+
+        return trimmed;
     }
 }

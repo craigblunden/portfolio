@@ -9,10 +9,12 @@ public class GoalService : IGoalService
 
     async Task<PagedResponseDto<GoalResponseDto>> IGoalService.GetAllAsync(int offset, int limit)
     {
-        var Goals = await _goalRepository.GetAllAsync(offset, limit);
+        var (safeOffset, safeLimit) = PageBounds.Clamp(offset, limit);
+
+        var Goals = await _goalRepository.GetAllAsync(safeOffset, safeLimit);
         var totalCount = await _goalRepository.GetTotalCountAsync();
-        var pageNumber = offset / limit + 1;
-        var totalPages = (int)Math.Ceiling(totalCount / (double)limit);
+        var pageNumber = safeOffset / safeLimit + 1;
+        var totalPages = (int)Math.Ceiling(totalCount / (double)safeLimit);
 
         return new PagedResponseDto<GoalResponseDto>(
             Goals.Select(ToResponse),

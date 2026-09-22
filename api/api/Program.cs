@@ -43,25 +43,29 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var specificOrigins = "AppOrigins";
 
+// The single list of front ends allowed to reach this API. It feeds both the CORS
+// policy and the forwarded-host allow list further down, so the two cannot drift.
+var allowedOrigins = new List<string>
+{
+    "https://craigportfolioui-edfzftfbf9gkfcc0.australiaeast-01.azurewebsites.net",
+    "https://craigblunden.dev",
+};
+
+if (builder.Environment.IsDevelopment())
+{
+    allowedOrigins.Add("http://localhost:3000");
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
         name: specificOrigins,
         policy =>
-        {
-            var origins = new List<string>
-            {
-                "https://craigportfolioui-edfzftfbf9gkfcc0.australiaeast-01.azurewebsites.net",
-                "https://craigblunden.dev",
-            };
-
-            if (builder.Environment.IsDevelopment())
-            {
-                origins.Add("http://localhost:3000");
-            }
-
-            policy.WithOrigins([.. origins]).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
-        }
+            policy
+                .WithOrigins([.. allowedOrigins])
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
     );
 });
 
@@ -167,8 +171,21 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto;
+
+    // App Service fronts this app from an address range that is not stable, so the
+    // usual "trust these proxy IPs" check cannot be used and the lists are cleared.
+    // That alone would mean trusting X-Forwarded-Host from any caller, which lets a
+    // request rewrite the host the app believes it is serving. Pinning the accepted
+    // hosts restores the bound the IP check would otherwise have given us: a spoofed
+    // header is dropped instead of honoured.
     options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
+    options.AllowedHosts =
+    [
+        .. allowedOrigins
+            .Select(origin => new Uri(origin).Host)
+            .Distinct(StringComparer.OrdinalIgnoreCase),
+    ];
 });
 
 var app = builder.Build();
