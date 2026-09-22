@@ -22,7 +22,7 @@ Answers are spoken and the browser transcribes them itself. What crosses the net
 
 That's the nice version. The honest version is that it buys privacy with compatibility: a browser that can't transcribe can't start a run at all, and someone who can't speak, or would rather not, can't use the feature. That's written into the spec as accepted "for now", rather than left as a thing nobody said out loud.
 
-You could originally type your answer instead, which would have covered it. Removing that came out of watching one person use it.
+You could originally type your answer instead, which would have covered it. Removing that came out of watching one person use it (Read: Begging my girlfriend to try my sweet new feature).
 
 ## A first phone test broke four things in two minutes
 
@@ -43,7 +43,7 @@ None of that came out of a design review. It came out of sitting next to someone
 
 ## The scorecard was too harsh, and it was the weighting
 
-Then I used it myself, got a mediocre score, and felt hard done by. I was right, which is rarer than it sounds.
+Then I used it myself, got a mediocre score, and felt hard done by.
 
 A question the countdown never reached was being sent to the scorer as silence, and marked at the bottom of the scale at full weight. Running out of time didn't cost you a question. It halved your score.
 
@@ -53,13 +53,13 @@ The clock hitting zero mid-answer keeps whatever you'd said and scores it. If yo
 
 Question budgets became per-category, because a minute each is silly when the categories are this different:
 
-| Category | Answer time |
-| --- | --- |
-| Personal | 1½ min |
-| Behavioural | 2½ min |
-| Stakeholder | 2 min |
-| Technical | 3 min |
-| Design | 4 min |
+| Category    | Answer time |
+| ----------- | ----------- |
+| Personal    | 1½ min      |
+| Behavioural | 2½ min      |
+| Stakeholder | 2 min       |
+| Technical   | 3 min       |
+| Design      | 4 min       |
 
 It's a guide, not a cut-off: the run keeps one countdown, so spending your design budget on a story about a standup is your own business. The scorer is told each answer time and judges depth against it.
 
